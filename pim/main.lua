@@ -2,36 +2,8 @@
 -- by spywhere
 version='0.0.1'
 mod='n'
-modes={
- i='--insert--',
- c=''
-}
-lines={
- ''
- -- 'hello',
- -- 'world',
- -- 'this',
- -- 'is',
- -- 'a',
- -- 'pretty',
- -- 'long',
- -- 'line',
- -- 'to',
- -- 'test',
- -- 'how',
- -- 'scrolling',
- -- 'in',
- -- 'a',
- -- 'buffer',
- -- 'would',
- -- 'look',
- -- 'like',
- -- 'as',
- -- 'well',
- -- 'as',
- -- 'scrolling',
- -- 'behaviour'
-}
+modes={}
+lines={}
 opts={
  debug=false,
  nu=false,
@@ -59,9 +31,191 @@ cur_kmap=nil
 key=0
 cur_input={text=''}
 splash=true
+cmds={}
+input={}
+keymap={}
 
--- enable mouse and keyboard
-poke(0x5f2d, 1)
+function _init()
+ -- enable mouse and keyboard
+ poke(0x5f2d, 1)
+
+ modes={
+  i='--insert--',
+  c=''
+ }
+ lines={''}
+ -- 'hello',
+ -- 'world',
+ -- 'this',
+ -- 'is',
+ -- 'a',
+ -- 'pretty',
+ -- 'long',
+ -- 'line',
+ -- 'to',
+ -- 'test',
+ -- 'how',
+ -- 'scrolling',
+ -- 'in',
+ -- 'a',
+ -- 'buffer',
+ -- 'would',
+ -- 'look',
+ -- 'like',
+ -- 'as',
+ -- 'well',
+ -- 'as',
+ -- 'scrolling',
+ -- 'behaviour'
+
+ cmds={
+  set=set
+ }
+
+ input={
+  i={
+   input=function (value)
+    if value then
+     lines[pos.l] = value
+    end
+
+    return lines[pos.l]
+   end,
+   back_on_first=true,
+   back=function ()
+    if pos.l <= 1 then
+     return
+    end
+    local new_insertion=#lines[pos.l - 1]
+    lines[pos.l - 1] = lines[pos.l - 1] .. lines[pos.l]
+
+    local new_lines = {}
+    local idx = 1
+    for line in all(lines) do
+     if idx ~= pos.l then
+      add(new_lines, line)
+     end
+     idx = idx + 1
+    end
+    lines=new_lines
+    scroll('l', -1)(0)
+    mode('i', false)(0)
+    cur_input.insertion = new_insertion
+   end,
+   accept=function ()
+    local new_line=sub(lines[pos.l], cur_input.insertion + 1)
+    lines[pos.l] = sub(lines[pos.l], 1, cur_input.insertion)
+
+    local new_lines = {}
+    local idx = 1
+    for line in all(lines) do
+     add(new_lines, line)
+     if idx == pos.l then
+      add(new_lines, new_line)
+     end
+     idx = idx + 1
+    end
+    lines=new_lines
+    scroll('l', 1)(0)
+    mode('i', false)(0)
+    cur_input.insertion = 0
+   end
+  },
+  c={
+   text='',
+   back=mode('n', false),
+   accept=function ()
+    if input ~= '' then
+     local cmd_seq=split(cur_input.text, ' ')
+     eval_cmd(cur_input.text, cmd_seq, cmds)
+    end
+    mode('n', false)(0)
+   end
+  }
+ }
+
+ keymap={
+  i={
+   ['<c-c>']=mode('n', true),
+   ['<left>']=function ()
+    local new_value=(cur_input.insertion or #cur_input.input())-1
+    if new_value < 0 then
+     cur_input.insertion = 0
+    else
+     cur_input.insertion = new_value
+    end
+   end,
+   ['<right>']=function ()
+    local new_value=(cur_input.insertion or 0)+1
+    if new_value > #cur_input.input() then
+     cur_input.insertion = #cur_input.input()
+    else
+     cur_input.insertion = new_value
+    end
+   end,
+   ['<up>']=function ()
+    mode('n', true)(0)
+    scroll('l', -1)(0)
+    mode('i', true)(0)
+   end,
+   ['<down>']=function ()
+    mode('n', true)(0)
+    scroll('l', 1)(0)
+    mode('i', true)(0)
+   end
+  },
+  c={
+   ['<c-c>']=mode('n', false),
+   ['<left>']=function ()
+    local new_value=(cur_input.insertion or #cur_input.text)-1
+    if new_value < 0 then
+     cur_input.insertion = 0
+    else
+     cur_input.insertion = new_value
+    end
+   end,
+   ['<right>']=function ()
+    local new_value=(cur_input.insertion or 0)+1
+    if new_value > #cur_input.text then
+     cur_input.insertion = #cur_input.text
+    else
+     cur_input.insertion = new_value
+    end
+   end
+  },
+  n={
+   ['<c-c>']=clr_key_seq,
+   [':']=mode('c', false),
+   i=mode('i', false),
+   a=mode('i', true),
+   ['<c-e>']=shiftscreen('y', 1),
+   ['<c-y>']=shiftscreen('y', -1),
+   h=scroll('c', -1),
+   j=scroll('l', 1),
+   k=scroll('l', -1),
+   l=scroll('c', 1),
+   ['<left>']=scroll('c', -1),
+   ['<down>']=scroll('l', 1),
+   ['<up>']=scroll('l', -1),
+   ['<right>']=scroll('c', 1),
+   ['<c-b>']=scroll('l', -20),
+   ['<c-f>']=scroll('l', 20),
+   ['<c-d>']=scroll('l', 10),
+   ['<c-u>']=scroll('l', -10),
+   ['0']=scroll('c', 1, true),
+   ['$']=scroll('c', 0, true),
+   g={
+    g=scroll('l', 1, true)
+   },
+   G=scroll('l', 0, true),
+   o=function ()
+    scroll('c', 0, true)
+    mode('i', true)
+    cur_input.accept()
+   end
+  }
+ }
+end
 
 function max_pos(k)
  if k == 'l' or k == 'y' then
@@ -221,152 +375,6 @@ function eval_cmd(input, cmd_seq, cmdset)
   return eval_cmd(input, cmd_seq, value)
  end
 end
-
-cmds={
- set=set
-}
-input={
- i={
-  input=function (value)
-   if value then
-    lines[pos.l] = value
-   end
-
-   return lines[pos.l]
-  end,
-  back_on_first=true,
-  back=function ()
-   if pos.l <= 1 then
-    return
-   end
-   local new_insertion=#lines[pos.l - 1]
-   lines[pos.l - 1] = lines[pos.l - 1] .. lines[pos.l]
-
-   local new_lines = {}
-   local idx = 1
-   for line in all(lines) do
-    if idx ~= pos.l then
-     add(new_lines, line)
-    end
-    idx = idx + 1
-   end
-   lines=new_lines
-   scroll('l', -1)(0)
-   mode('i', false)(0)
-   cur_input.insertion = new_insertion
-  end,
-  accept=function ()
-   local new_line=sub(lines[pos.l], cur_input.insertion + 1)
-   lines[pos.l] = sub(lines[pos.l], 1, cur_input.insertion)
-
-   local new_lines = {}
-   local idx = 1
-   for line in all(lines) do
-    add(new_lines, line)
-    if idx == pos.l then
-     add(new_lines, new_line)
-    end
-    idx = idx + 1
-   end
-   lines=new_lines
-   scroll('l', 1)(0)
-   mode('i', false)(0)
-   cur_input.insertion = 0
-  end
- },
- c={
-  text='',
-  back=mode('n', false),
-  accept=function ()
-   if input ~= '' then
-    local cmd_seq=split(cur_input.text, ' ')
-    eval_cmd(cur_input.text, cmd_seq, cmds)
-   end
-   mode('n', false)(0)
-  end
- }
-}
-keymap={
- i={
-  ['<c-c>']=mode('n', true),
-  ['<left>']=function ()
-   local new_value=(cur_input.insertion or #cur_input.input())-1
-   if new_value < 0 then
-    cur_input.insertion = 0
-   else
-    cur_input.insertion = new_value
-   end
-  end,
-  ['<right>']=function ()
-   local new_value=(cur_input.insertion or 0)+1
-   if new_value > #cur_input.input() then
-    cur_input.insertion = #cur_input.input()
-   else
-    cur_input.insertion = new_value
-   end
-  end,
-  ['<up>']=function ()
-   mode('n', true)(0)
-   scroll('l', -1)(0)
-   mode('i', true)(0)
-  end,
-  ['<down>']=function ()
-   mode('n', true)(0)
-   scroll('l', 1)(0)
-   mode('i', true)(0)
-  end
- },
- c={
-  ['<c-c>']=mode('n', false),
-  ['<left>']=function ()
-   local new_value=(cur_input.insertion or #cur_input.text)-1
-   if new_value < 0 then
-    cur_input.insertion = 0
-   else
-    cur_input.insertion = new_value
-   end
-  end,
-  ['<right>']=function ()
-   local new_value=(cur_input.insertion or 0)+1
-   if new_value > #cur_input.text then
-    cur_input.insertion = #cur_input.text
-   else
-    cur_input.insertion = new_value
-   end
-  end
- },
- n={
-  ['<c-c>']=clr_key_seq,
-  [':']=mode('c', false),
-  i=mode('i', false),
-  a=mode('i', true),
-  ['<c-e>']=shiftscreen('y', 1),
-  ['<c-y>']=shiftscreen('y', -1),
-  h=scroll('c', -1),
-  j=scroll('l', 1),
-  k=scroll('l', -1),
-  l=scroll('c', 1),
-  ['<left>']=scroll('c', -1),
-  ['<down>']=scroll('l', 1),
-  ['<up>']=scroll('l', -1),
-  ['<right>']=scroll('c', 1),
-  ['<c-b>']=scroll('l', -20),
-  ['<c-f>']=scroll('l', 20),
-  ['<c-d>']=scroll('l', 10),
-  ['<c-u>']=scroll('l', -10),
-  ['0']=scroll('c', 1, true),
-  ['$']=scroll('c', 0, true),
-  g={
-   g=scroll('l', 1, true)
-  },
-  G=scroll('l', 0, true),
-  o=function ()
-   scroll('c', 0, true)
-   mode('i', true)
-   cur_input.accept()
-  end
- }
-}
 
 function is_printable(num)
  return
