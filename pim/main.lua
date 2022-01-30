@@ -295,7 +295,10 @@ function _draw()
     local line_len = #lines[lineno]
     local fx = (lineno == min_l and from_c or 1) - 1
     local tx = (lineno == max_l and to_c - 1 or line_len)
-    if mod == 'vb' then
+    if mod == 'vl' then
+     fx = 0
+     tx = line_len
+    elseif mod == 'vb' then
      fx = from_c - 1
      tx = min(to_c - 1, line_len)
     end
