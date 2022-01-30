@@ -2,7 +2,8 @@ pico-8 cartridge // http://www.pico-8.com
 version 34
 __lua__
 #include pim/main.lua
-#include pim/fn.lua
+#include pim/fn/common.lua
+#include pim/fn/keymap.lua
 #include pim/keymap.lua
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

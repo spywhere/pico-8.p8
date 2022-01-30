@@ -375,8 +375,8 @@ function eval_key_seq()
  map_type=type(cur_kmap)
  if map_type == 'function' then
   -- map to function
-  cur_kmap(key_count)
-  return false
+  cur_kmap = cur_kmap(key_count) or nil
+  return cur_kmap and true or false
  elseif map_type == 'table' then
   -- more map to be evaluate
   return true
