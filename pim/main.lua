@@ -143,6 +143,10 @@ function max_pos(k, override_mode)
 end
 
 function clr_key_seq()
+ if last_key == 0 then
+  info('type :qa then <enter> to exit')
+ end
+
  key=0
  last_key=0
  key_count=0
@@ -195,7 +199,7 @@ function kch(num)
  elseif num == 10 then
   return '<lf>'
  elseif num == 13 then
-  return '<ret>'
+  return '<enter>'
  elseif num == 32 then
   return '<spc>'
  elseif num > 32 and num <= 126 then
@@ -247,7 +251,7 @@ function _draw()
   print('pim is vim-like editor', 24, 48, 7)
   print('for pico-8', 48, 54, 7)
   print('type i  to start editing', 20, 66, 7)
-  print('type p  to pause and exit', 20, 72, 7)
+  print('type :q to pause and exit', 20, 72, 7)
  end
 
  local max_lines = max_pos('y')
@@ -291,8 +295,11 @@ function _draw()
   rectfill(0, 121, 127, 127, mod == 'n' and 7 or 6)
 
   if mod == 'n' then
-   printr(kch(key)..' '..tostr(pos.c)..':'..tostr(pos.l), 0, 122, 0)
-   print(message or '', 1, 122, messagehl)
+   if message then
+    print(message, 1, 122, messagehl)
+   else
+    printr(kch(key)..' '..tostr(pos.c)..':'..tostr(pos.l), 0, 122, 0)
+   end
   else
    print(':' .. cur_input.text, 1, 122, 0)
   end
@@ -342,7 +349,7 @@ function eval_key_seq()
      local back = insertion < #source and sub(source, insertion+1, #source) or ''
      cur_input.insertion=insertion - 1
      source=front .. back
-    elseif k == '<ret>' or k == '<tab>' then
+    elseif k == '<enter>' or k == '<tab>' then
      cur_input.accept()
      return false
     elseif k == '<spc>' then

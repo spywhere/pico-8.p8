@@ -54,7 +54,9 @@ end
 
 function mode(m, append)
  return function (count)
-  splash=false
+  if m ~= 'i' and m == 'n' then
+   splash=false
+  end
 
   local append_size=min(max_pos('x', 'n'), 1)
   local append_value=append and append_size - 1 or -1
