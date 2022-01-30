@@ -31,7 +31,7 @@ key_count=0
 cur_kmap=nil
 key=0
 cur_input={text=''}
-splash=true
+splash=false
 cmds={}
 input={}
 keymap={}
@@ -44,30 +44,8 @@ function _init()
   i='--insert--',
   c=''
  }
- lines={''}
- -- 'hello',
- -- 'world',
- -- 'this',
- -- 'is',
- -- 'a',
- -- 'pretty',
- -- 'long',
- -- 'line',
- -- 'to',
- -- 'test',
- -- 'how',
- -- 'scrolling',
- -- 'in',
- -- 'a',
- -- 'buffer',
- -- 'would',
- -- 'look',
- -- 'like',
- -- 'as',
- -- 'well',
- -- 'as',
- -- 'scrolling',
- -- 'behaviour'
+ lines=split('', '\n')
+ splash=#lines == 0 or #lines[1] == 0
 
  cmds={
   set=set,
