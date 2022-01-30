@@ -77,7 +77,7 @@ function move_cursor(k, offset, absolute)
    if k == 'l' then
     pos.l=#lines
    else
-    pos.c=#(lines[pos.l] or '')
+    pos.c=max(1, #(lines[pos.l] or ''))
    end
   end
 

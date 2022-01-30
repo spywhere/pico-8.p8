@@ -8,17 +8,17 @@ function _keymap()
    ['<down>']=move_cursor('l', 1)
   },
   c={
-   ['<c-c>']=mode('n', false),
+   ['<c-c>']=mode('n'),
    ['<left>']=move_cursor('c', -1),
    ['<right>']=move_cursor('c', 1)
   },
   n={
    ['<c-c>']=clr_key_seq,
-   [':']=mode('c', false),
-   i=mode('i', false),
+   [':']=mode('c'),
+   i=mode('i'),
    I=compose {
     move_cursor('c', 1, true),
-    mode('i', false)
+    mode('i')
    },
    a=mode('i', true),
    A=compose {
@@ -30,12 +30,12 @@ function _keymap()
    o=compose {
     move_cursor('c', 0, true),
     mode('i', true),
-    cur_input.accept
+    function () cur_input.accept() end
    },
    O=compose {
     move_cursor('c', 1, true),
     mode('i'),
-    cur_input.accept,
+    function () cur_input.accept() end,
     move_cursor('l', -1)
    },
    p=motion_cmd(print_range, 'd')

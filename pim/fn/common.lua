@@ -1,8 +1,6 @@
 function compose(cmds)
  return function (count)
-  for cmd in all(cmds) do
-   cmd(0)
-  end
+  foreach(cmds, function (f) f(0) end)
  end
 end
 
