@@ -433,10 +433,11 @@ function _draw()
  cls(0)
 
  if opts.debug then
-  printr('nu='..tostr(opts.nu), 0, 0, 7)
-  printr('rnu='..tostr(opts.rnu), 0, 6, 7)
-  printr('so='..tostr(opts.so), 0, 12, 7)
-  printr('key='..kch(key), 0, 18, 7)
+  printr('#lines='..#lines, 0, 0, 7)
+  printr('nu='..tostr(opts.nu), 0, 6, 7)
+  printr('rnu='..tostr(opts.rnu), 0, 12, 7)
+  printr('so='..tostr(opts.so), 0, 18, 7)
+  printr('key='..kch(key), 0, 24, 7)
  end
 
  if splash then
