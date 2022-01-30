@@ -98,7 +98,7 @@ function _init()
      idx = idx + 1
     end
     lines=new_lines
-    scroll('l', -1)(0)
+    move_cursor('l', -1)(0)
     mode('i', false)(0)
     cur_input.insertion = new_insertion
    end,
@@ -116,7 +116,7 @@ function _init()
      idx = idx + 1
     end
     lines=new_lines
-    scroll('l', 1)(0)
+    move_cursor('l', 1)(0)
     mode('i', false)(0)
     cur_input.insertion = 0
    end
@@ -155,12 +155,12 @@ function _init()
    end,
    ['<up>']=function ()
     mode('n', true)(0)
-    scroll('l', -1)(0)
+    move_cursor('l', -1)(0)
     mode('i', true)(0)
    end,
    ['<down>']=function ()
     mode('n', true)(0)
-    scroll('l', 1)(0)
+    move_cursor('l', 1)(0)
     mode('i', true)(0)
    end
   },
@@ -188,28 +188,28 @@ function _init()
    [':']=mode('c', false),
    i=mode('i', false),
    a=mode('i', true),
-   ['<c-e>']=shiftscreen('y', 1),
-   ['<c-y>']=shiftscreen('y', -1),
-   h=scroll('c', -1),
-   j=scroll('l', 1),
-   k=scroll('l', -1),
-   l=scroll('c', 1),
-   ['<left>']=scroll('c', -1),
-   ['<down>']=scroll('l', 1),
-   ['<up>']=scroll('l', -1),
-   ['<right>']=scroll('c', 1),
-   ['<c-b>']=scroll('l', -20),
-   ['<c-f>']=scroll('l', 20),
-   ['<c-d>']=scroll('l', 10),
-   ['<c-u>']=scroll('l', -10),
-   ['0']=scroll('c', 1, true),
-   ['$']=scroll('c', 0, true),
+   ['<c-e>']=scroll('y', 1),
+   ['<c-y>']=scroll('y', -1),
+   h=move_cursor('c', -1),
+   j=move_cursor('l', 1),
+   k=move_cursor('l', -1),
+   l=move_cursor('c', 1),
+   ['<left>']=move_cursor('c', -1),
+   ['<down>']=move_cursor('l', 1),
+   ['<up>']=move_cursor('l', -1),
+   ['<right>']=move_cursor('c', 1),
+   ['<c-b>']=move_cursor('l', -20),
+   ['<c-f>']=move_cursor('l', 20),
+   ['<c-d>']=move_cursor('l', 10),
+   ['<c-u>']=move_cursor('l', -10),
+   ['0']=move_cursor('c', 1, true),
+   ['$']=move_cursor('c', 0, true),
    g={
-    g=scroll('l', 1, true)
+    g=move_cursor('l', 1, true)
    },
-   G=scroll('l', 0, true),
+   G=move_cursor('l', 0, true),
    o=function ()
-    scroll('c', 0, true)
+    move_cursor('c', 0, true)
     mode('i', true)
     cur_input.accept()
    end
@@ -283,9 +283,9 @@ function mode(m, append)
 
   modes.n = ''
   if m == 'i' and append then
-   scroll('c', 1)(count)
+   move_cursor('c', 1)(count)
   elseif m == 'n' and append then
-   scroll('c', -1)(count)
+   move_cursor('c', -1)(count)
   end
 
   cur_input=input[mod] or {text=''}
@@ -299,7 +299,7 @@ function mode(m, append)
  end
 end
 
-function scroll(k, offset, absolute)
+function move_cursor(k, offset, absolute)
  return function (count)
   local new_value=pos[k] + (count > 0 and (count * offset) or offset)
   local max_value=max_pos(k)
@@ -333,12 +333,12 @@ function scroll(k, offset, absolute)
     pos.y=pos.l - max_disp_line[mod] + 1 + so
    end
 
-   scroll('c', 0)(count)
+   move_cursor('c', 0)(count)
   end
  end
 end
 
-function shiftscreen(k, offset)
+function scroll(k, offset)
  return function (count)
   local new_value=pos[k] + (count > 0 and (count * offset) or offset)
   local max_value=max_pos(k)
