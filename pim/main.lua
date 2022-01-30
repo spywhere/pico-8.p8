@@ -77,11 +77,13 @@ function _init()
    input=function (value)
     if value then
      lines[pos.l] = value
+     pos.c = cur_input.insertion + 1
     end
 
     return lines[pos.l]
    end,
    back_on_first=true,
+   restore_cursor=true,
    back=function ()
     if pos.l <= 1 then
      return
@@ -137,51 +139,15 @@ function _init()
  keymap={
   i={
    ['<c-c>']=mode('n', true),
-   ['<left>']=function ()
-    local new_value=(cur_input.insertion or #cur_input.input())-1
-    if new_value < 0 then
-     cur_input.insertion = 0
-    else
-     cur_input.insertion = new_value
-    end
-   end,
-   ['<right>']=function ()
-    local new_value=(cur_input.insertion or 0)+1
-    if new_value > #cur_input.input() then
-     cur_input.insertion = #cur_input.input()
-    else
-     cur_input.insertion = new_value
-    end
-   end,
-   ['<up>']=function ()
-    mode('n', true)(0)
-    move_cursor('l', -1)(0)
-    mode('i', true)(0)
-   end,
-   ['<down>']=function ()
-    mode('n', true)(0)
-    move_cursor('l', 1)(0)
-    mode('i', true)(0)
-   end
+   ['<left>']=move_cursor('c', -1),
+   ['<right>']=move_cursor('c', 1),
+   ['<up>']=move_cursor('l', -1),
+   ['<down>']=move_cursor('l', 1)
   },
   c={
    ['<c-c>']=mode('n', false),
-   ['<left>']=function ()
-    local new_value=(cur_input.insertion or #cur_input.text)-1
-    if new_value < 0 then
-     cur_input.insertion = 0
-    else
-     cur_input.insertion = new_value
-    end
-   end,
-   ['<right>']=function ()
-    local new_value=(cur_input.insertion or 0)+1
-    if new_value > #cur_input.text then
-     cur_input.insertion = #cur_input.text
-    else
-     cur_input.insertion = new_value
-    end
-   end
+   ['<left>']=move_cursor('c', -1),
+   ['<right>']=move_cursor('c', 1)
   },
   n={
    ['<c-c>']=clr_key_seq,
@@ -209,19 +175,25 @@ function _init()
    },
    G=move_cursor('l', 0, true),
    o=function ()
-    move_cursor('c', 0, true)
-    mode('i', true)
+    move_cursor('c', 0, true)(0)
+    mode('i', true)(0)
     cur_input.accept()
+   end,
+   O=function ()
+    move_cursor('c', 1, true)(0)
+    mode('i')(0)
+    cur_input.accept()
+    move_cursor('l', -1)(0)
    end
   }
  }
 end
 
-function max_pos(k)
+function max_pos(k, override_mode)
  if k == 'l' or k == 'y' then
   return #lines
  else
-  return #(lines[pos.l] or '') + (mod == 'i' and 1 or 0)
+  return #(lines[pos.l] or '') + ((override_mode or mod) == 'i' and 1 or 0)
  end
 end
 
@@ -279,13 +251,14 @@ end
 function mode(m, append)
  return function (count)
   splash=false
+
+  local append_size=min(max_pos('x', 'n'), 1)
+  local append_value=append and append_size - 1 or -1
+
   mod=m
 
-  modes.n = ''
-  if m == 'i' and append then
-   move_cursor('c', 1)(count)
-  elseif m == 'n' and append then
-   move_cursor('c', -1)(count)
+  if m == 'n' and cur_input.restore_cursor then
+   move_cursor('c', max(1, cur_input.insertion + append_value), true)(count)
   end
 
   cur_input=input[mod] or {text=''}
@@ -294,13 +267,44 @@ function mode(m, append)
    cur_input.text = ''
   end
   if m == 'i' then
-   cur_input.insertion = pos.c - 1
+   cur_input.insertion = pos.c + append_value
+   pos.c = cur_input.insertion + 1
   end
  end
 end
 
 function move_cursor(k, offset, absolute)
+ local function move_input(count)
+  if k == 'l' then
+   local ins_pos = cur_input.insertion
+   mode('n', true)(0)
+   move_cursor('l', offset)(count)
+   mode('i', true)(0)
+   cur_input.insertion = ins_pos
+   move_cursor('c', 0)(0)
+  else
+   local input_text=cur_input.text or cur_input.input() or ''
+   local input_len=#input_text
+   local new_offset=count > 0 and (count * offset) or offset
+   local new_value=(cur_input.insertion or input_len) + new_offset
+   if new_value < 0 then
+    cur_input.insertion = 0
+   elseif new_value > input_len then
+    cur_input.insertion = input_len
+   else
+    cur_input.insertion = new_value
+   end
+   if mod == 'i' then
+    pos.c = cur_input.insertion + 1
+   end
+  end
+ end
+
  return function (count)
+  if mod ~= 'n' then
+   return move_input(count)
+  end
+
   local new_value=pos[k] + (count > 0 and (count * offset) or offset)
   local max_value=max_pos(k)
   if absolute then
@@ -438,6 +442,7 @@ function _draw()
   printr('rnu='..tostr(opts.rnu), 0, 12, 7)
   printr('so='..tostr(opts.so), 0, 18, 7)
   printr('key='..kch(key), 0, 24, 7)
+  printr('pos='..tostr(pos.c)..':'..tostr(pos.l), 0, 30, 7)
  end
 
  if splash then
