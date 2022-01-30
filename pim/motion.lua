@@ -16,7 +16,7 @@ function _motion()
   ['<c-d>']=to_line(10),
   ['<c-u>']=to_line(-10),
   g={
-   _=to_line(),
+   _=to_line(nil, nil, true),
    g=to_line(1, true)
   },
   G=to_line(0, true),

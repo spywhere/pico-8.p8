@@ -44,13 +44,12 @@ function to_char(offset, absolute)
 
   return {
    from={l=pos.l,c=pos.c},
-   to={l=pos.l,c=last_char},
-   line=true
+   to={l=pos.l,c=last_char}
   }
  end
 end
 
-function to_line(offset, absolute)
+function to_line(offset, absolute, line)
  return function (opts)
   local count = max(1, opts.count) * ((offset == nil or absolute) and 0 or offset)
   local last_line = max(1, min(#lines, pos.l + count))
@@ -68,7 +67,7 @@ function to_line(offset, absolute)
   return {
    from={l=pos.l,c=pos.c},
    to={l=last_line,c=last_char},
-   line=true
+   line=line and true or false
   }
  end
 end
