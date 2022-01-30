@@ -357,9 +357,10 @@ end
 
 function eval_key_seq()
  local k=kch(key)
+ local m=sub(mod, 1, 1)
 
  if cur_map == nil then
-  if mod == 'i' or mod == 'c' then
+  if m == 'i' or m == 'c' then
    if is_printable(key) then
     local source=cur_input.text or cur_input.input()
     local ins=''
@@ -402,7 +403,7 @@ function eval_key_seq()
     end
     return false
    end
-  elseif mod == 'n' or sub(mod, 1, 1) == 'v' then
+  elseif m == 'n' or m == 'v' then
    if key >= 48 and key <= 57 then
     if key_count > 0 then
      key_count = key_count * 10
@@ -418,7 +419,7 @@ function eval_key_seq()
  local map_type=type(cur_map)
  if cur_map == nil then
   cur_map={
-   k=keymap[mod][k],
+   k=keymap[m][k],
    m=motion[k]
   }
  else
@@ -455,7 +456,8 @@ function eval_key_seq()
 end
 
 function _update()
- if mod == 'n' and last_key > 0 and last_key < time() then
+ local m=sub(mod, 1, 1)
+ if (m == 'n' or m == 'v') and last_key > 0 and last_key < time() then
   key=0
   eval_key_seq()
   clr_key_seq()

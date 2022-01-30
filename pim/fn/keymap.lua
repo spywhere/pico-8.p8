@@ -9,6 +9,12 @@ function mode(new_mode, append)
   local append_value=append and append_size - 1 or -1
 
   local last_mod=mod
+  local last_visual=sub(last_mod, 1, 1) == 'v'
+
+  if last_mod == m then
+   m='n'
+  end
+
   mod=m
 
   if m == 'n' and cur_input.restore_cursor then
@@ -17,7 +23,6 @@ function mode(new_mode, append)
    move_cursor('c', 0)(0)
   end
 
-  local last_visual=sub(last_mod, 1, 1) == 'v'
   if not last_visual and sub(m, 1, 1) == 'v' then
    anchor_pos = { c=pos.c, l=pos.l }
   end

@@ -15,29 +15,9 @@ function _keymap()
   v={
    ['<c-c>']=mode('n'),
    [':']=mode('c'),
-   v=mode('n'),
-   V=mode('vl'),
-   ['<c-v>']=mode('vb'),
-   o=swap_anchor,
-   O=swap_anchor,
-   p=motion_cmd(print_range, 'd')
-  },
-  vl={
-   ['<c-c>']=mode('n'),
-   [':']=mode('c'),
-   v=mode('v'),
-   V=mode('n'),
-   ['<c-v>']=mode('vb'),
-   o=swap_anchor,
-   O=swap_anchor,
-   p=motion_cmd(print_range, 'd')
-  },
-  vb={
-   ['<c-c>']=mode('n'),
-   [':']=mode('c'),
    v=mode('v'),
    V=mode('vl'),
-   ['<c-v>']=mode('n'),
+   ['<c-v>']=mode('vb'),
    o=swap_anchor,
    O=swap_anchor,
    p=motion_cmd(print_range, 'd')
