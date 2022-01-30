@@ -3,3 +3,4 @@ games
 **/*.p8
 !pim.p8
 **/*.p8l
+**/*.p8.png
