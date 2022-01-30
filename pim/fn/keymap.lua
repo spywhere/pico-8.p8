@@ -1,6 +1,7 @@
-function mode(m, append)
+function mode(new_mode, append)
  return function (count)
-  if m ~= 'c' and m == 'n' then
+  local m=new_mode
+  if m ~= 'c' and m ~= 'n' then
    splash=false
   end
 
