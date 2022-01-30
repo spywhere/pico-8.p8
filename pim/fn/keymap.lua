@@ -114,3 +114,13 @@ function scroll(k, offset)
   end
  end
 end
+
+function print_range(range)
+ info(
+  (range.line and 'line ' or '')..
+  'range from '..
+  tostr(range.from.c) .. ':' .. tostr(range.from.l)..
+  ' to '..
+  tostr(range.to.c) .. ':' .. tostr(range.to.l)
+ )
+end

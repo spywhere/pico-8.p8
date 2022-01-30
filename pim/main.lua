@@ -28,12 +28,13 @@ message=nil
 messagehl=0
 last_key=0
 key_count=0
-cur_kmap=nil
+cur_map=nil
 key=0
 cur_input={text=''}
 splash=false
 cmds={}
 input={}
+motion={}
 keymap={}
 
 function _init()
@@ -109,6 +110,7 @@ function _init()
   }
  }
 
+ _motion()
  _keymap()
 end
 
@@ -128,7 +130,7 @@ function clr_key_seq(notify)
  key=0
  last_key=0
  key_count=0
- cur_kmap=nil
+ cur_map=nil
 end
 
 function info(msg)
@@ -308,7 +310,7 @@ end
 function eval_key_seq()
  local k=kch(key)
 
- if cur_kmap == nil then
+ if cur_map == nil then
   if mod == 'i' or mod == 'c' then
    if is_printable(key) then
     local source=cur_input.text or cur_input.input()
@@ -365,19 +367,36 @@ function eval_key_seq()
   end
  end
 
- local map_type=type(cur_kmap)
-  if cur_kmap == nil then
-   cur_kmap=keymap[mod][k]
-  elseif map_type == 'table' then
-   cur_kmap=cur_kmap[k]
-  end
+ local map_type=type(cur_map)
+ if cur_map == nil then
+  cur_map={
+   k=keymap[mod][k],
+   m=motion[k]
+  }
+ else
+  cur_map={
+   k=(cur_map.k or {})[k],
+   m=(cur_map.m or {})[k]
+  }
+ end
 
- map_type=type(cur_kmap)
- if map_type == 'function' then
+ local kmap_type=type(cur_map.k)
+ local mmap_type=type(cur_map.m)
+ if kmap_type == 'function' then
   -- map to function
-  cur_kmap = cur_kmap(key_count) or nil
-  return cur_kmap and true or false
- elseif map_type == 'table' then
+  cur_map = cur_map.k(key_count) or nil
+  return cur_map and true or false
+ elseif mmap_type == 'function' then
+  -- map to function
+  local range = cur_map.m({ modifier='', count=key_count }) or nil
+  if pos.l ~= range.to.l then
+   move_cursor('l', range.to.l, true)(0)
+  end
+  if pos.c ~= range.to.c then
+   move_cursor('c', range.to.c, true)(0)
+  end
+  return false
+ elseif kmap_type == 'table' or mmap_type == 'table' then
   -- more map to be evaluate
   return true
  else
