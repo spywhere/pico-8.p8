@@ -54,7 +54,7 @@ end
 
 function mode(m, append)
  return function (count)
-  if m ~= 'i' and m == 'n' then
+  if m ~= 'c' and m ~= 'n' then
    splash=false
   end
 
