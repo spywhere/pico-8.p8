@@ -90,16 +90,7 @@ function _init()
     end
     local new_insertion=#lines[pos.l - 1]
     lines[pos.l - 1] = lines[pos.l - 1] .. lines[pos.l]
-
-    local new_lines = {}
-    local idx = 1
-    for line in all(lines) do
-     if idx ~= pos.l then
-      add(new_lines, line)
-     end
-     idx = idx + 1
-    end
-    lines=new_lines
+    deli(lines, pos.l)
     move_cursor('l', -1)(0)
     mode('i', false)(0)
     cur_input.insertion = new_insertion
@@ -107,17 +98,7 @@ function _init()
    accept=function ()
     local new_line=sub(lines[pos.l], cur_input.insertion + 1)
     lines[pos.l] = sub(lines[pos.l], 1, cur_input.insertion)
-
-    local new_lines = {}
-    local idx = 1
-    for line in all(lines) do
-     add(new_lines, line)
-     if idx == pos.l then
-      add(new_lines, new_line)
-     end
-     idx = idx + 1
-    end
-    lines=new_lines
+    add(lines, new_line, pos.l + 1)
     move_cursor('l', 1)(0)
     mode('i', false)(0)
     cur_input.insertion = 0
