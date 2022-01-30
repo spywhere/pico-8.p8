@@ -234,7 +234,7 @@ function _draw()
   printr('key='..kch(key), 0, 24, 7)
   printr('pos='..tostr(pos.c)..':'..tostr(pos.l), 0, 30, 7)
   if anchor_pos then
-   printr('apos='..tostr(anchor_pos.c)..':'..tostr(anchor_pos.l), 0, 37, 7)
+   printr('apos='..tostr(anchor_pos.c)..':'..tostr(anchor_pos.l), 0, 36, 7)
   end
  end
 
