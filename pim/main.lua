@@ -14,7 +14,8 @@ opts={
 opts_alias={
  number='nu',
  relativenumber='rnu',
- scrolloff='so'
+ scrolloff='so',
+ timeoutlen='tm'
 }
 max_disp_line={
  n=20,
@@ -69,8 +70,14 @@ function _init()
  -- 'behaviour'
 
  cmds={
-  set=set
+  set=set,
+  quit=function ()
+   extcmd('pause')
+  end
  }
+ cmds.q=cmds.quit
+ cmds.quitall=cmds.quit
+ cmds.qa=cmds.quit
 
  input={
   i={
