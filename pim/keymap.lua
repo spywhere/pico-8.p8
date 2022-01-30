@@ -27,12 +27,6 @@ function _keymap()
    },
    ['<c-e>']=scroll('y', 1),
    ['<c-y>']=scroll('y', -1),
-   h=move_cursor('c', -1),
-   l=move_cursor('c', 1),
-   ['<left>']=move_cursor('c', -1),
-   ['<right>']=move_cursor('c', 1),
-   ['0']=move_cursor('c', 1, true),
-   ['$']=move_cursor('c', 0, true),
    o=compose {
     move_cursor('c', 0, true),
     mode('i', true),

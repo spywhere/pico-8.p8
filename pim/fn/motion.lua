@@ -35,6 +35,18 @@ end
 
 function to_char(offset, absolute)
  return function (opts)
+  local count = max(1, opts.count) * ((offset == nil or absolute) and 0 or offset)
+  local last_char = max(1, min(#lines[pos.l], pos.c + count))
+
+  if absolute then
+   last_char = offset == 1 and 1 or #lines[pos.l]
+  end
+
+  return {
+   from={l=pos.l,c=pos.c},
+   to={l=pos.l,c=last_char},
+   line=true
+  }
  end
 end
 
