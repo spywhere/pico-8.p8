@@ -379,6 +379,7 @@ end
 function is_printable(num)
  return
   (num >= 8 and num <= 10) or
+  num == 13 or
   (num >= 32 and num <= 126) or
   (num >=128 and num <= 153)
 end
@@ -391,6 +392,8 @@ function kch(num)
  elseif num == 9 then
   return '<tab>'
  elseif num == 10 then
+  return '<lf>'
+ elseif num == 13 then
   return '<ret>'
  elseif num == 32 then
   return '<spc>'
@@ -536,7 +539,7 @@ function eval_key_seq()
      local back = insertion < #source and sub(source, insertion+1, #source) or ''
      cur_input.insertion=insertion - 1
      source=front .. back
-    elseif k == '<tab>' then
+    elseif k == '<ret>' or k == '<tab>' then
      cur_input.accept()
      return false
     elseif k == '<spc>' then
@@ -606,6 +609,11 @@ function _update()
  if stat(30) then
   -- get key code
   k=ord(stat(31))
+
+  if k == 13 or k == 27 or k == 112 then
+   -- disable pause menu for Return and P key
+   poke(0x5f30, 1)
+  end
  elseif btnp(0) then
   k=995 -- special code for left arrow
  elseif btnp(1) then
