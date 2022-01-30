@@ -116,7 +116,14 @@ function _init()
    back=mode('n', false),
    accept=function ()
     if input ~= '' then
-     local cmd_seq=split(cur_input.text, ' ')
+     local text=cur_input.text
+
+     -- remove bang
+     if sub(text, #text, #text) == '!' then
+      text=sub(text, 1, #text-1)
+     end
+
+     local cmd_seq=split(text, ' ')
      eval_cmd(cur_input.text, cmd_seq, cmds)
     end
     mode('n', false)(0)
