@@ -52,6 +52,14 @@ function set(option)
  opts[name]=val
 end
 
+function compose(cmds)
+ return function (count)
+  for cmd in all(cmds) do
+   cmd(0)
+  end
+ end
+end
+
 function mode(m, append)
  return function (count)
   if m ~= 'c' and m == 'n' then

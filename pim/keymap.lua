@@ -16,7 +16,15 @@ function _keymap()
    ['<c-c>']=clr_key_seq,
    [':']=mode('c', false),
    i=mode('i', false),
+   I=compose {
+    move_cursor('c', 1, true),
+    mode('i', false)
+   },
    a=mode('i', true),
+   A=compose {
+    move_cursor('c', 0, true),
+    mode('i', true)
+   },
    ['<c-e>']=scroll('y', 1),
    ['<c-y>']=scroll('y', -1),
    h=move_cursor('c', -1),
@@ -37,17 +45,17 @@ function _keymap()
     g=move_cursor('l', 1, true)
    },
    G=move_cursor('l', 0, true),
-   o=function ()
-    move_cursor('c', 0, true)(0)
-    mode('i', true)(0)
-    cur_input.accept()
-   end,
-   O=function ()
-    move_cursor('c', 1, true)(0)
-    mode('i')(0)
-    cur_input.accept()
-    move_cursor('l', -1)(0)
-   end
+   o=compose {
+    move_cursor('c', 0, true),
+    mode('i', true),
+    cur_input.accept
+   },
+   O=compose {
+    move_cursor('c', 1, true),
+    mode('i'),
+    cur_input.accept,
+    move_cursor('l', -1)
+   }
   }
  }
 end
