@@ -14,6 +14,7 @@ function _keymap()
   },
   v={
    ['<c-c>']=mode('n'),
+   [':']=mode('c'),
    v=mode('n'),
    V=mode('vl'),
    ['<c-v>']=mode('vb'),
@@ -23,6 +24,7 @@ function _keymap()
   },
   vl={
    ['<c-c>']=mode('n'),
+   [':']=mode('c'),
    v=mode('v'),
    V=mode('n'),
    ['<c-v>']=mode('vb'),
@@ -32,6 +34,7 @@ function _keymap()
   },
   vb={
    ['<c-c>']=mode('n'),
+   [':']=mode('c'),
    v=mode('v'),
    V=mode('vl'),
    ['<c-v>']=mode('n'),

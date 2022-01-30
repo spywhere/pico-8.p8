@@ -16,14 +16,15 @@ function mode(m, append)
    move_cursor('c', 0)(0)
   end
 
-  if sub(last_mod, 1, 1) ~= 'v' and sub(m, 1, 1) == 'v' then
+  local last_visual=sub(last_mod, 1, 1) == 'v'
+  if not last_visual and sub(m, 1, 1) == 'v' then
    anchor_pos = { c=pos.c, l=pos.l }
   end
 
   cur_input=input[mod] or {text=''}
   cur_input.insertion = nil
   if cur_input.text ~= nil then
-   cur_input.text = ''
+   cur_input.text = last_visual and '\'<,\'>' or ''
   end
   if m == 'i' then
    cur_input.insertion = pos.c + append_value
