@@ -311,7 +311,7 @@ function move_cursor(k, offset, absolute)
    end
   elseif new_value > 0 and new_value <= max_value then
    pos[k]=new_value
-  elseif new_value > max_value then
+  elseif new_value > max_value and max_value > 0 then
    pos[k]=max_value
   else
    pos[k]=1
