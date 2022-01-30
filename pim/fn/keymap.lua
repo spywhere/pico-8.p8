@@ -11,7 +11,7 @@ function mode(new_mode, append)
   local last_mod=mod
   local last_visual=sub(last_mod, 1, 1) == 'v'
 
-  if last_mod == m then
+  if last_visual and last_mod == m then
    m='n'
   end
 
