@@ -264,6 +264,9 @@ function _draw()
   from_c = anchor_pos.c
   to_c = pos.c
  end
+ if mod == 'vb' then
+  from_c, to_c = min(pos.c, anchor_pos.c), max(pos.c, anchor_pos.c)
+ end
 
  for idx=0, max_disp_line[mod] - 1 do
   local lineno=pos.y + idx
@@ -289,9 +292,17 @@ function _draw()
    local ly = idx * 6
    -- visual highlight
    if sub(mod, 1, 1) == 'v' and lineno >= min_l and lineno <= max_l then
+    local line_len = #lines[lineno]
     local fx = (lineno == min_l and from_c or 1) - 1
-    local tx = (lineno == max_l and to_c - 1 or #lines[lineno])
-    rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, 6)
+    local tx = (lineno == max_l and to_c - 1 or line_len)
+    if mod == 'vb' then
+     fx = from_c - 1
+     tx = min(to_c - 1, line_len)
+    end
+
+    if fx <= line_len then
+     rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, 6)
+    end
    end
    print(sub(lines[lineno], 1, 32 - sign_size / 4), lx, 1 + ly, 7)
   else
@@ -387,7 +398,7 @@ function eval_key_seq()
     end
     return false
    end
-  elseif mod == 'n' or mod == 'v' or mod == 'vl' or mod == 'vb' then
+  elseif mod == 'n' or sub(mod, 1, 1) == 'v' then
    if key >= 48 and key <= 57 then
     if key_count > 0 then
      key_count = key_count * 10
@@ -422,11 +433,13 @@ function eval_key_seq()
  elseif mmap_type == 'function' then
   -- map to function
   local range = cur_map.m({ modifier='', count=key_count }) or nil
-  if pos.l ~= range.to.l then
-   move_cursor('l', range.to.l, true)(0)
-  end
-  if pos.c ~= range.to.c then
-   move_cursor('c', range.to.c, true)(0)
+  if range then
+   if pos.l ~= range.to.l then
+    move_cursor('l', range.to.l, true)(0)
+   end
+   if pos.c ~= range.to.c then
+    move_cursor('c', range.to.c, true)(0)
+   end
   end
   return false
  elseif kmap_type == 'table' or mmap_type == 'table' then

@@ -19,6 +19,7 @@ function _keymap()
    ['<c-v>']=mode('vb'),
    o=swap_anchor,
    O=swap_anchor,
+   p=motion_cmd(print_range, 'd')
   },
   vl={
    ['<c-c>']=mode('n'),
@@ -27,6 +28,7 @@ function _keymap()
    ['<c-v>']=mode('vb'),
    o=swap_anchor,
    O=swap_anchor,
+   p=motion_cmd(print_range, 'd')
   },
   vb={
    ['<c-c>']=mode('n'),
@@ -35,6 +37,7 @@ function _keymap()
    ['<c-v>']=mode('n'),
    o=swap_anchor,
    O=swap_anchor,
+   p=motion_cmd(print_range, 'd')
   },
   n={
    ['<c-c>']=clr_key_seq,

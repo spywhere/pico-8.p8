@@ -1,10 +1,26 @@
 function motion_cmd(fn, operator)
  return function (count)
+  if sub(mod, 1, 1) == 'v' then
+   local range = {
+    from={ l=anchor_pos.l, c=anchor_pos.c },
+    to={ l=pos.l, c=pos.c },
+    line=mod=='vl',
+    block=mod=='vb'
+   }
+   fn(range)
+   mode('n')(0)
+   return
+  end
+
   local function build_motion_map(opts, level, motions)
    return setmetatable({}, {
     __index = function (t, k)
      -- handle count inside motion command (e.g. d5w)
      local key = k
+
+     if key == '' then
+      return
+     end
 
      if level == 1 and key == operator then
       key = '_'
@@ -16,12 +32,13 @@ function motion_cmd(fn, operator)
 
      local new_motion = motions[key]
      if type(new_motion) == 'function' then
-      local range=motions[key](opts, key)
+      local range=new_motion(opts, key)
       fn(range)
      elseif type(new_motion) == 'table' then
       return build_motion_map(opts, level + 1, new_motion)
      elseif opts.modifier ~= '' and motions[''] then
-      motions[''](opts, key)
+      local range=motions[''](opts, key)
+      fn(range)
      end
     end
    })
