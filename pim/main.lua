@@ -246,7 +246,8 @@ function _draw()
   print('type :q to pause and exit', 20, 72, 7)
  end
 
- local cursorhl = mod == 'n' and 7 or 6
+ local cursorhl = (mod == 'n' or mod == 'c') and 7 or 6
+ local statushl = mod == 'n' and 7 or 6
 
  local max_lines = max_pos('y')
  local pad_max = max_lines < 10 and 10 or max_lines
@@ -317,7 +318,7 @@ function _draw()
 
  -- cmd/status line
  if mod == 'n' or mod == 'c' then
-  rectfill(0, 121, 127, 127, cursorhl)
+  rectfill(0, 121, 127, 127, statushl)
 
   if mod == 'n' then
    if message then
