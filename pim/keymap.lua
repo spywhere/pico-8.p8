@@ -12,9 +12,36 @@ function _keymap()
    ['<left>']=move_cursor('c', -1),
    ['<right>']=move_cursor('c', 1)
   },
+  v={
+   ['<c-c>']=mode('n'),
+   v=mode('n'),
+   V=mode('vl'),
+   ['<c-v>']=mode('vb'),
+   o=swap_anchor,
+   O=swap_anchor,
+  },
+  vl={
+   ['<c-c>']=mode('n'),
+   v=mode('v'),
+   V=mode('n'),
+   ['<c-v>']=mode('vb'),
+   o=swap_anchor,
+   O=swap_anchor,
+  },
+  vb={
+   ['<c-c>']=mode('n'),
+   v=mode('v'),
+   V=mode('vl'),
+   ['<c-v>']=mode('n'),
+   o=swap_anchor,
+   O=swap_anchor,
+  },
   n={
    ['<c-c>']=clr_key_seq,
    [':']=mode('c'),
+   v=mode('v'),
+   V=mode('vl'),
+   ['<c-v>']=mode('vb'),
    i=mode('i'),
    I=compose {
     move_cursor('c', 1, true),

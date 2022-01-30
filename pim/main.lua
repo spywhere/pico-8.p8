@@ -20,9 +20,13 @@ opts_alias={
 max_disp_line={
  n=20,
  i=21,
+ v=21,
+ vl=21,
+ vb=21,
  c=20
 }
 pos={x=1,y=1,c=1,l=1}
+anchor_pos={c=1,l=1}
 last_message=0
 message=nil
 messagehl=0
@@ -43,7 +47,10 @@ function _init()
 
  modes={
   i='--insert--',
-  c=''
+  c='',
+  v='--visual--',
+  vl='--visual line--',
+  vb='--visual block--'
  }
  lines=split('', '\n')
  splash=#lines == 0 or #lines[1] == 0
@@ -115,10 +122,12 @@ function _init()
 end
 
 function max_pos(k, override_mode)
+ local target_mode = override_mode or mod
+ local is_edit = target_mode == 'i' or sub(target_mode, 1, 1) == 'v'
  if k == 'l' or k == 'y' then
   return #lines
  else
-  return #(lines[pos.l] or '') + ((override_mode or mod) == 'i' and 1 or 0)
+  return #(lines[pos.l] or '') + (is_edit and 1 or 0)
  end
 end
 
@@ -224,6 +233,9 @@ function _draw()
   printr('so='..tostr(opts.so), 0, 18, 7)
   printr('key='..kch(key), 0, 24, 7)
   printr('pos='..tostr(pos.c)..':'..tostr(pos.l), 0, 30, 7)
+  if anchor_pos then
+   printr('apos='..tostr(anchor_pos.c)..':'..tostr(anchor_pos.l), 0, 37, 7)
+  end
  end
 
  if splash then
@@ -234,9 +246,24 @@ function _draw()
   print('type :q to pause and exit', 20, 72, 7)
  end
 
+ local cursorhl = mod == 'n' and 7 or 6
+
  local max_lines = max_pos('y')
  local pad_max = max_lines < 10 and 10 or max_lines
  local sign_size = (opts.nu or opts.rnu) and (#tostr(pad_max) + 1) * 4 or 1
+
+ local min_l, max_l, from_c, to_c = 1, 1, 1, 1
+ if pos.l < anchor_pos.l then
+  min_l = pos.l
+  max_l = anchor_pos.l
+  from_c = pos.c
+  to_c = anchor_pos.c
+ else
+  min_l = anchor_pos.l
+  max_l = pos.l
+  from_c = anchor_pos.c
+  to_c = pos.c
+ end
 
  for idx=0, max_disp_line[mod] - 1 do
   local lineno=pos.y + idx
@@ -260,7 +287,13 @@ function _draw()
    -- line content
    local lx = sign_size
    local ly = idx * 6
-   print(sub(lines[lineno], 1, 64 - sign_size / 4), lx, 1 + ly, 7)
+   -- visual highlight
+   if sub(mod, 1, 1) == 'v' and lineno >= min_l and lineno <= max_l then
+    local fx = (lineno == min_l and from_c or 1) - 1
+    local tx = (lineno == max_l and to_c - 1 or #lines[lineno])
+    rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, 6)
+   end
+   print(sub(lines[lineno], 1, 32 - sign_size / 4), lx, 1 + ly, 7)
   else
    sign='~'
   end
@@ -269,10 +302,8 @@ function _draw()
  end
 
  -- cmd/status line
- if mod == 'i' then
-  printr(modes[mod], 0, 122, 7)
- else
-  rectfill(0, 121, 127, 127, mod == 'n' and 7 or 6)
+ if mod == 'n' or mod == 'c' then
+  rectfill(0, 121, 127, 127, cursorhl)
 
   if mod == 'n' then
    if message then
@@ -283,6 +314,8 @@ function _draw()
   else
    print(':' .. cur_input.text, 1, 122, 0)
   end
+ else
+  printr(modes[mod], 0, 122, 7)
  end
 
  -- cursor
@@ -303,7 +336,7 @@ function _draw()
   cch=ip < #text and sub(text, ip + 1, ip + 1) or ''
  end
 
- rectfill(cx - 1, cy, cx + 3, cy + 6, mod == 'c' and 7 or 6)
+ rectfill(cx - 1, cy, cx + 3, cy + 6, cursorhl)
  print(cch, cx, cy + 1, 0)
 end
 
@@ -354,7 +387,7 @@ function eval_key_seq()
     end
     return false
    end
-  elseif mod == 'n' then
+  elseif mod == 'n' or mod == 'v' or mod == 'vl' or mod == 'vb' then
    if key >= 48 and key <= 57 then
     if key_count > 0 then
      key_count = key_count * 10

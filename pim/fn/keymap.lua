@@ -10,7 +10,13 @@ function mode(m, append)
   mod=m
 
   if m == 'n' and cur_input.restore_cursor then
-   move_cursor('c', max(1, cur_input.insertion + append_value), true)(count)
+   move_cursor('c', max(1, cur_input.insertion + append_value), true)(0)
+  elseif m == 'n' then
+   move_cursor('c', 0)(0)
+  end
+
+  if sub(m, 1, 1) == 'v' then
+   anchor_pos = { c=pos.c, l=pos.l }
   end
 
   cur_input=input[mod] or {text=''}
@@ -23,6 +29,11 @@ function mode(m, append)
    pos.c = cur_input.insertion + 1
   end
  end
+end
+
+function swap_anchor()
+ anchor_pos.l, pos.l = pos.l, anchor_pos.l
+ anchor_pos.c, pos.c = pos.c, anchor_pos.c
 end
 
 function move_cursor(k, offset, absolute)
@@ -53,7 +64,7 @@ function move_cursor(k, offset, absolute)
  end
 
  return function (count)
-  if mod ~= 'n' then
+  if mod == 'i' or mod == 'c' then
    return move_input(count)
   end
 
@@ -75,9 +86,9 @@ function move_cursor(k, offset, absolute)
 
   if pos[k] < 1 then
    if k == 'l' then
-    pos.l=#lines
+    pos.l=max_value
    else
-    pos.c=max(1, #(lines[pos.l] or ''))
+    pos.c=max(1, max_value)
    end
   end
 
