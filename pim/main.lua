@@ -610,7 +610,7 @@ function _update()
   -- get key code
   k=ord(stat(31))
 
-  if k == 13 or k == 27 or k == 112 then
+  if k == 13 or k == 112 then
    -- disable pause menu for Return and P key
    poke(0x5f30, 1)
   end
