@@ -1,0 +1,4 @@
+demos
+games
+**/*.p8
+!pim.p8
