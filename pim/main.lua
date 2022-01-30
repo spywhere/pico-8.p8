@@ -120,8 +120,8 @@ function max_pos(k, override_mode)
  end
 end
 
-function clr_key_seq()
- if last_key == 0 then
+function clr_key_seq(notify)
+ if notify and last_key == 0 then
   info('type :qa then <enter> to exit')
  end
 
