@@ -53,6 +53,8 @@ function _init()
   vb='--visual block--'
  }
  lines=split('', '\n')
+ -- lines=split('this is a pretty long line\nto test how text\nsplitting and joining\nwould work under certain cases', '\n')
+ -- lines=split('hello\nworld\nthis\nis\na\npretty\nlong\nline\nto\ntest\nhow\nscrolling\nin\na\nbuffer\nwould\nlook\nlike\nas\nwell\nas\nscrolling\nbehaviour', '\n')
  splash=#lines == 0 or #lines[1] == 0
 
  cmds={
