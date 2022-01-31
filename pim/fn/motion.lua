@@ -71,16 +71,16 @@ end
 function to_line(offset, absolute)
  return function (opts)
   local count = max(1, opts.count) * ((offset == nil or absolute) and 0 or offset)
-  local last_line = max(1, min(#lines, pos.l + count))
+  local last_line = max(1, min(lines(0), pos.l + count))
 
   if absolute then
-   last_line = offset == 1 and 1 or #lines
+   last_line = offset == 1 and 1 or lines(0)
   end
 
-  local last_char = min(pos.c, #lines[last_line])
+  local last_char = min(pos.c, #line_at(0, last_line))
 
   if offset == nil then
-   last_char = max(1, #lines[last_line])
+   last_char = max(1, #line_at(0, last_line))
   end
 
   return {

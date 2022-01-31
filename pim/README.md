@@ -45,6 +45,7 @@ For some of the normal mode operator, you can prefixed it with a count. For exam
 - `C-u`/`C-d`: The buffer up / down by half a page
 
 ## Options
+
 You can set the option through command line mode by using `set` command.
 
 - `number` / `nu`: Show line number

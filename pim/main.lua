@@ -1,9 +1,9 @@
--- pim v0.1.0
+-- pim v0.2.0
 -- by spywhere
-version='0.1.0'
+version='0.2.0'
 mod='n'
 modes={}
-lines={}
+buffers={}
 opts={
  debug=false,
  nu=false,
@@ -52,10 +52,8 @@ function _init()
   vl='--visual line--',
   vb='--visual block--'
  }
- lines=split('', '\n')
- -- lines=split('this is a pretty long line\nto test how text\nsplitting and joining\nwould work under certain cases', '\n')
- -- lines=split('hello\nworld\nthis\nis\na\npretty\nlong\nline\nto\ntest\nhow\nscrolling\nin\na\nbuffer\nwould\nlook\nlike\nas\nwell\nas\nscrolling\nbehaviour', '\n')
- splash=#lines == 0 or #lines[1] == 0
+ _buffer()
+ splash=is_empty_buffer(0)
 
  cmds={
   set=set,
@@ -71,11 +69,11 @@ function _init()
   i={
    input=function (value)
     if value then
-     lines[pos.l] = value
+     line_at(0, pos.l, value)
      pos.c = cur_input.insertion + 1
     end
 
-    return lines[pos.l]
+    return line_at(0, pos.l)
    end,
    back_on_first=true,
    restore_cursor=true,
@@ -83,17 +81,17 @@ function _init()
     if pos.l <= 1 then
      return
     end
-    local new_insertion=#lines[pos.l - 1]
-    lines[pos.l - 1] = lines[pos.l - 1] .. lines[pos.l]
-    deli(lines, pos.l)
+    local new_insertion=#line_at(0, pos.l - 1)
+    line_at(0, pos.l - 1, line_at(0, pos.l - 1) .. line_at(0, pos.l))
+    set_line_at(0, pos.l)
     move_cursor('l', -1)(0)
     mode('i', false)(0)
     cur_input.insertion = new_insertion
    end,
    accept=function ()
-    local new_line=sub(lines[pos.l], cur_input.insertion + 1)
-    lines[pos.l] = sub(lines[pos.l], 1, cur_input.insertion)
-    add(lines, new_line, pos.l + 1)
+    local new_line=sub(line_at(0, pos.l), cur_input.insertion + 1)
+    line_at(0, pos.l, sub(line_at(0, pos.l), 1, cur_input.insertion))
+    set_line_at(0, pos.l + 1, new_line)
     move_cursor('l', 1)(0)
     mode('i', false)(0)
     cur_input.insertion = 0
@@ -127,9 +125,9 @@ function max_pos(k, override_mode)
  local target_mode = override_mode or mod
  local is_edit = target_mode == 'i' or sub(target_mode, 1, 1) == 'v'
  if k == 'l' or k == 'y' then
-  return #lines
+  return lines(0)
  else
-  return #(lines[pos.l] or '') + (is_edit and 1 or 0)
+  return #(line_at(0, pos.l) or '') + (is_edit and 1 or 0)
  end
 end
 
@@ -229,7 +227,7 @@ function _draw()
  cls(0)
 
  if opts.debug then
-  printr('#lines='..#lines, 0, 0, 7)
+  printr('#lines='..lines(0), 0, 0, 7)
   printr('nu='..tostr(opts.nu), 0, 6, 7)
   printr('rnu='..tostr(opts.rnu), 0, 12, 7)
   printr('so='..tostr(opts.so), 0, 18, 7)
@@ -295,7 +293,7 @@ function _draw()
    local ly = idx * 6
    -- visual highlight
    if sub(mod, 1, 1) == 'v' and lineno >= min_l and lineno <= max_l then
-    local line_len = #lines[lineno]
+    local line_len = #line_at(0, lineno)
     local fx = (lineno == min_l and from_c or 1) - 1
     local tx = (lineno == max_l and to_c - 1 or line_len)
     if mod == 'vl' then
@@ -310,7 +308,7 @@ function _draw()
      rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, 6)
     end
    end
-   print(sub(lines[lineno], 1, 32 - sign_size / 4), lx, 1 + ly, 7)
+   print(sub(line_at(0, lineno), 1, 32 - sign_size / 4), lx, 1 + ly, 7)
   else
    sign='~'
   end
@@ -338,7 +336,7 @@ function _draw()
  -- cursor
  local cx = (pos.c - pos.x) * 4 + sign_size
  local cy = (pos.l - pos.y) * 6
- local cch = pos.c <= #lines[pos.l] and sub(lines[pos.l] or '', pos.c, pos.c) or ''
+ local cch = pos.c <= #line_at(0, pos.l) and sub(line_at(0, pos.l) or '', pos.c, pos.c) or ''
 
  if mod == 'c' or mod == 'i' then
   if mod == 'c' then

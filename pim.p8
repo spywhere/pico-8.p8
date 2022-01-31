@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 34
 __lua__
 #include pim/main.lua
+#include pim/buffer.lua
 #include pim/fn/common.lua
 #include pim/fn/motion.lua
 #include pim/fn/keymap.lua
