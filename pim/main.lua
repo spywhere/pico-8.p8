@@ -1,6 +1,22 @@
 -- pim v0.2.0
 -- by spywhere
 version='0.2.0'
+const={
+ devkit=0x5f2d,
+ pause_menu=0x5f30,
+ dropped_file=0x800,
+ userdata=0x4300,
+ keypress=30,
+ keycode=31,
+ mousex=32,
+ mousey=33,
+ mousescroll=36,
+ mouseaccel=37,
+ has_file=120,
+ size=128,
+ chwidth=32,
+ file_suffix='.p8l'
+}
 mod='n'
 modes={}
 buffers={}
@@ -33,7 +49,7 @@ function _init()
  _option()
 
  -- enable mouse and keyboard
- poke(0x5f2d, 1)
+ poke(const.devkit, 1)
 
  _buffer()
  splash=is_empty_buffer(0)
@@ -115,7 +131,7 @@ function kch(num)
 end
 
 function printr(str, x, y, col)
- local cx=128-(4*#str)-x
+ local cx=const.size-(4*#str)-x
  print(str, cx, y, col)
 end
 
@@ -249,7 +265,7 @@ function _draw()
      rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, hl.visual())
     end
    end
-   print(sub(line_at(0, lineno), 1, 32 - sign_size / 4), lx, 1 + ly, 7)
+   print(sub(line_at(0, lineno), 1, const.chwidth - flr(sign_size / 4)), lx, 1 + ly, 7)
   else
    sign.text='~'
   end
@@ -305,14 +321,12 @@ function _update()
  end
 
  local k=nil
- -- if key press
- if stat(30) then
-  -- get key code
-  k=ord(stat(31))
+ if stat(const.keypress) then
+  k=ord(stat(const.keycode))
 
   if k == 13 or k == 112 then
    -- disable pause menu for Return and P key
-   poke(0x5f30, 1)
+   poke(const.pause_menu, 1)
   end
  elseif btnp(0) then
   k=995 -- special code for left arrow
