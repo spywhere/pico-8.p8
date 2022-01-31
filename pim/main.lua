@@ -4,19 +4,8 @@ version='0.2.0'
 mod='n'
 modes={}
 buffers={}
-opts={
- debug=false,
- nu=false,
- rnu=false,
- so=0,
- tm=1000
-}
-opts_alias={
- number='nu',
- relativenumber='rnu',
- scrolloff='so',
- timeoutlen='tm'
-}
+opts={}
+opts_alias={}
 max_disp_line={
  n=20,
  i=21,
@@ -27,9 +16,7 @@ max_disp_line={
 }
 pos={x=1,y=1,c=1,l=1}
 anchor_pos={c=1,l=1}
-last_message=0
 message=nil
-messagehl=0
 last_key=0
 key_count=0
 cur_map=nil
@@ -40,85 +27,22 @@ cmds={}
 input={}
 motion={}
 keymap={}
+hl={}
 
 function _init()
+ _option()
+
  -- enable mouse and keyboard
  poke(0x5f2d, 1)
 
- modes={
-  i='--insert--',
-  c='',
-  v='--visual--',
-  vl='--visual line--',
-  vb='--visual block--'
- }
  _buffer()
  splash=is_empty_buffer(0)
 
- cmds={
-  set=set,
-  quit=function ()
-   extcmd('pause')
-  end
- }
- cmds.q=cmds.quit
- cmds.quitall=cmds.quit
- cmds.qa=cmds.quit
-
- input={
-  i={
-   input=function (value)
-    if value then
-     line_at(0, pos.l, value)
-     pos.c = cur_input.insertion + 1
-    end
-
-    return line_at(0, pos.l)
-   end,
-   back_on_first=true,
-   restore_cursor=true,
-   back=function ()
-    if pos.l <= 1 then
-     return
-    end
-    local new_insertion=#line_at(0, pos.l - 1)
-    line_at(0, pos.l - 1, line_at(0, pos.l - 1) .. line_at(0, pos.l))
-    set_line_at(0, pos.l)
-    move_cursor('l', -1)(0)
-    mode('i', false)(0)
-    cur_input.insertion = new_insertion
-   end,
-   accept=function ()
-    local new_line=sub(line_at(0, pos.l), cur_input.insertion + 1)
-    line_at(0, pos.l, sub(line_at(0, pos.l), 1, cur_input.insertion))
-    set_line_at(0, pos.l + 1, new_line)
-    move_cursor('l', 1)(0)
-    mode('i', false)(0)
-    cur_input.insertion = 0
-   end
-  },
-  c={
-   text='',
-   back=mode('n', false),
-   accept=function ()
-    if input ~= '' then
-     local text=cur_input.text
-
-     -- remove bang
-     if sub(text, #text, #text) == '!' then
-      text=sub(text, 1, #text-1)
-     end
-
-     local cmd_seq=split(text, ' ')
-     eval_cmd(cur_input.text, cmd_seq, cmds)
-    end
-    mode('n', false)(0)
-   end
-  }
- }
-
+ _cmd()
+ _input()
  _motion()
  _keymap()
+ _highlight()
 end
 
 function max_pos(k, override_mode)
@@ -143,39 +67,19 @@ function clr_key_seq(notify)
 end
 
 function info(msg)
- last_message=time()+2
- message=msg
- messagehl=0
+ message={
+  type='info',
+  text=msg,
+  timeout=time()+2
+ }
 end
 
 function error(msg)
- info(msg)
- messagehl=8
-end
-
-function eval_cmd(input, cmd_seq, cmdset)
- if type(cmdset) ~= 'table' or #cmd_seq <= 0 then
-  error('e492: not an editor cmd')
-  return
- end
-
- local name=cmd_seq[1]
- del(cmd_seq, name)
- local value=cmdset[name]
-
- if type(value) == 'function' then
-  return value(cmd_seq)
- else
-  return eval_cmd(input, cmd_seq, value)
- end
-end
-
-function is_printable(num)
- return
-  (num >= 8 and num <= 10) or
-  num == 13 or
-  (num >= 32 and num <= 126) or
-  (num >=128 and num <= 153)
+ message={
+  type='error',
+  text=msg,
+  timeout=time()+2
+ }
 end
 
 function kch(num)
@@ -223,20 +127,61 @@ function lpad_match(str, target, c)
  end
 end
 
+function eval_key_seq()
+ local k=kch(key)
+ local m=sub(mod, 1, 1)
+
+ if cur_map == nil then
+  if input[m] and not handle_input(k) then
+   return false
+  elseif handle_count() then
+   return true
+  end
+ end
+
+ local map_type=type(cur_map)
+ if cur_map == nil then
+  cur_map={
+   k=keymap[m][k],
+   m=motion[k]
+  }
+ else
+  cur_map={
+   k=(cur_map.k or {})[k],
+   m=(cur_map.m or {})[k]
+  }
+ end
+
+ local kmap_type=type(cur_map.k)
+ local mmap_type=type(cur_map.m)
+ if kmap_type == 'function' then
+  -- map to keymap function
+  cur_map = cur_map.k(key_count) or nil
+  return cur_map and true or false
+ elseif mmap_type == 'function' then
+  -- map to motion function
+  local range = cur_map.m({ modifier='', count=key_count }) or nil
+  if range then
+   if pos.l ~= range.to.l then
+    move_cursor('l', range.to.l, true)(0)
+   end
+   if pos.c ~= range.to.c then
+    move_cursor('c', range.to.c, true)(0)
+   end
+  end
+  return false
+ elseif kmap_type == 'table' or mmap_type == 'table' then
+  -- more map to be evaluate
+  return true
+ else
+  return false
+ end
+end
+
 function _draw()
  cls(0)
 
- if opts.debug then
-  printr('#lines='..lines(0), 0, 0, 7)
-  printr('nu='..tostr(opts.nu), 0, 6, 7)
-  printr('rnu='..tostr(opts.rnu), 0, 12, 7)
-  printr('so='..tostr(opts.so), 0, 18, 7)
-  printr('key='..kch(key), 0, 24, 7)
-  printr('pos='..tostr(pos.c)..':'..tostr(pos.l), 0, 30, 7)
-  if anchor_pos then
-   printr('apos='..tostr(anchor_pos.c)..':'..tostr(anchor_pos.l), 0, 36, 7)
-  end
- end
+ draw_debug()
 
  if splash then
   print('pim v'..version, 48, 36, 7)
@@ -245,9 +190,6 @@ function _draw()
   print('type i  to start editing', 20, 66, 7)
   print('type :q to pause and exit', 20, 72, 7)
  end
-
- local cursorhl = (mod == 'n' or mod == 'c') and 7 or 6
- local statushl = mod == 'n' and 7 or 6
 
  local max_lines = max_pos('y')
  local pad_max = max_lines < 10 and 10 or max_lines
@@ -273,19 +215,18 @@ function _draw()
   local lineno=pos.y + idx
 
   -- sign
-  local sign=''
-  local signhl=12
+  local sign={text='~', type='eob'}
   if lineno <= max_lines then
+   sign.type='linenumber'
    if opts.nu or opts.rnu then
     local lno=lineno
     if not opts.nu or (opts.rnu and pos.l ~= lineno) then
      lno=abs(pos.l - lineno)
     end
-    sign=lpad_match(tostr(lno), tostr(pad_max))
+    sign.text=lpad_match(tostr(lno), tostr(pad_max))
     if opts.nu and opts.rnu and pos.l == lineno then
-     sign=tostr(lno)
+     sign.text=tostr(lno)
     end
-    signhl=9
    end
 
    -- line content
@@ -305,24 +246,22 @@ function _draw()
     end
 
     if fx <= line_len then
-     rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, 6)
+     rectfill(lx - 1 + fx * 4, ly, lx + 3 + tx * 4, ly + 6, hl.visual())
     end
    end
    print(sub(line_at(0, lineno), 1, 32 - sign_size / 4), lx, 1 + ly, 7)
-  else
-   sign='~'
   end
 
-  print(sign, 0, 1 + idx * 6, signhl)
+  print(sign.text, 0, 1 + idx * 6, hl.sign(sign.type))
  end
 
  -- cmd/status line
  if mod == 'n' or mod == 'c' then
-  rectfill(0, 121, 127, 127, statushl)
+  rectfill(0, 121, 127, 127, hl.status())
 
   if mod == 'n' then
    if message then
-    print(message, 1, 122, messagehl)
+    print(message.text, 1, 122, hl.message(message.type))
    else
     printr(kch(key)..' '..tostr(pos.c)..':'..tostr(pos.l), 0, 122, 0)
    end
@@ -330,7 +269,7 @@ function _draw()
    print(':' .. cur_input.text, 1, 122, 0)
   end
  else
-  printr(modes[mod], 0, 122, 7)
+  printr(modes[mod], 0, 122, hl.mode())
  end
 
  -- cursor
@@ -351,108 +290,8 @@ function _draw()
   cch=ip < #text and sub(text, ip + 1, ip + 1) or ''
  end
 
- rectfill(cx - 1, cy, cx + 3, cy + 6, cursorhl)
+ rectfill(cx - 1, cy, cx + 3, cy + 6, hl.cursor())
  print(cch, cx, cy + 1, 0)
-end
-
-function eval_key_seq()
- local k=kch(key)
- local m=sub(mod, 1, 1)
-
- if cur_map == nil then
-  if m == 'i' or m == 'c' then
-   if is_printable(key) then
-    local source=cur_input.text or cur_input.input()
-    local ins=''
-    -- backspace
-    if k == '<bsp>' then
-     local insertion=cur_input.insertion or #source
-     if source == '' or insertion <= 0 then
-      if source == '' or cur_input.back_on_first then
-       cur_input.back()
-      end
-      return false
-     end
-
-     local front = sub(source, 1, insertion - 1)
-     local back = insertion < #source and sub(source, insertion+1, #source) or ''
-     cur_input.insertion=insertion - 1
-     source=front .. back
-    elseif k == '<enter>' or k == '<tab>' then
-     cur_input.accept()
-     return false
-    elseif k == '<spc>' then
-     ins=' '
-    elseif #k == 1 then
-     ins=k
-    end
-
-    if ins ~= '' then
-     local insertion=cur_input.insertion or #source
-     local front = sub(source, 1, insertion)
-     local back = insertion < #source and sub(source, insertion+1, #source) or ''
-     cur_input.insertion=insertion + 1
-
-     source=front .. ins .. back
-    end
-
-    if cur_input.input then
-     cur_input.input(source)
-    else
-     cur_input.text = source
-    end
-    return false
-   end
-  elseif m == 'n' or m == 'v' then
-   if key >= 48 and key <= 57 then
-    if key_count > 0 then
-     key_count = key_count * 10
-    end
-    key_count=key_count + key - 48
-    if key_count > 0 then
-     return true
-    end
-   end
-  end
- end
-
- local map_type=type(cur_map)
- if cur_map == nil then
-  cur_map={
-   k=keymap[m][k],
-   m=motion[k]
-  }
- else
-  cur_map={
-   k=(cur_map.k or {})[k],
-   m=(cur_map.m or {})[k]
-  }
- end
-
- local kmap_type=type(cur_map.k)
- local mmap_type=type(cur_map.m)
- if kmap_type == 'function' then
-  -- map to function
-  cur_map = cur_map.k(key_count) or nil
-  return cur_map and true or false
- elseif mmap_type == 'function' then
-  -- map to function
-  local range = cur_map.m({ modifier='', count=key_count }) or nil
-  if range then
-   if pos.l ~= range.to.l then
-    move_cursor('l', range.to.l, true)(0)
-   end
-   if pos.c ~= range.to.c then
-    move_cursor('c', range.to.c, true)(0)
-   end
-  end
-  return false
- elseif kmap_type == 'table' or mmap_type == 'table' then
-  -- more map to be evaluate
-  return true
- else
-  return false
- end
 end
 
 function _update()
@@ -492,9 +331,7 @@ function _update()
   end
  end
 
- if last_message > 0 and last_message < time() then
-  last_message=0
+ if message and message.timeout < time() then
   message=nil
-  messagehl=0
  end
 end
