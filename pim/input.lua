@@ -65,6 +65,11 @@ function handle_input(k)
   return true
  end
 
+ -- hide mouse cursor during typing
+ if mouse then
+  mouse.hide = true
+ end
+
  local source=cur_input.text or cur_input.input()
  local ins=''
  -- backspace

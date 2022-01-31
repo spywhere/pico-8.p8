@@ -37,6 +37,8 @@ last_key=0
 key_count=0
 cur_map=nil
 key=0
+last_mouse=nil
+mouse=nil
 cur_input={text=''}
 splash=false
 file_dropped=false
@@ -312,6 +314,11 @@ function _draw()
 
  rectfill(cx - 1, cy, cx + 3, cy + 6, hl.cursor())
  print(cch, cx, cy + 1, 0)
+
+ -- mouse cursor
+ if mouse and not mouse.hide then
+  spr(0, mouse.x, mouse.y)
+ end
 end
 
 function _update()
@@ -338,6 +345,20 @@ function _update()
   k=997 -- special code for up arrow
  elseif btnp(3) then
   k=998 -- special code for down arrow
+ end
+
+ local mx = stat(const.mousex)
+ local my = stat(const.mousey)
+ local mouse_on = opts.mouse == 'a' or opts.mouse == m
+ if mouse_on and (not mouse or mouse.x ~= mx or mouse.y ~= my) then
+  mouse = { x=mx, y=my }
+ elseif not mouse_on and mouse then
+  mouse = nil
+ end
+
+ local mouse_scroll = stat(const.mousescroll)
+ if mouse_scroll ~= 0 then
+  scroll('l', mouse_scroll)(0)
  end
 
  local has_dropped=file_dropped

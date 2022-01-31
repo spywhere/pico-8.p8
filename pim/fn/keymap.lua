@@ -17,10 +17,16 @@ function mode(new_mode, append)
 
   mod=m
 
-  if m == 'n' and cur_input.restore_cursor then
-   move_cursor('c', max(1, cur_input.insertion + append_value), true)(0)
-  elseif m == 'n' then
-   move_cursor('c', 0)(0)
+  if m == 'n' then
+   if mouse then
+    mouse.hide = false
+   end
+
+   if cur_input.restore_cursor then
+    move_cursor('c', max(1, cur_input.insertion + append_value), true)(0)
+   else
+    move_cursor('c', 0)(0)
+   end
   end
 
   if not last_visual and sub(m, 1, 1) == 'v' then

@@ -4,7 +4,8 @@ function _option()
   nu=false,
   rnu=false,
   so=0,
-  tm=1000
+  tm=1000,
+  mouse=''
  }
  opts_alias={
   number='nu',
