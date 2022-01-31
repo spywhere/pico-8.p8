@@ -1,11 +1,27 @@
 # pim
 
-This is my attempt to bring vim into Pico-8. This project is purely just a proof of concept as Pico-8 does not provide an API for reading a file.
+This is my attempt to bring vim into Pico-8. It leveraging Serial IO and debugging logs as a mean of reading / writing files.
 
 **Heads up!**
 - This is a very early releases of the cart, some functionalities might break under certain cases
 - Line wrap is not implemented, so text insertion pass the limit would resulted in unexpected behaviour
   - As line wrap is not implemented, so is horizontal scrolling
+
+## Reading and Writing file
+
+pim supports reading and writing file through Serial IO and debugging logs.
+
+### Reading Files
+
+To read a file, simply drag and drop the file onto the Pico-8 with pim running. pim will notify through the message that file is available to read.
+
+Once file is available to read, simply using `:e [filename]` to read a file as `[filename].p8l`.
+
+### Writing Files
+
+To write a file, simply using `:w [filename]` to write a file. This will always saved as `[filename].p8l` as pim is using `printh` to write the content to file.
+
+**Heads up!** Be careful, pim will always overwrite the target file as Pico-8 does not provide an API for file systems.
 
 ## Keymap
 
