@@ -39,6 +39,7 @@ cur_map=nil
 key=0
 cur_input={text=''}
 splash=false
+file_dropped=false
 cmds={}
 input={}
 motion={}
@@ -281,6 +282,7 @@ function _draw()
    if message then
     print(message.text, 1, 122, hl.message(message.type))
    else
+    print(buffer_at(0).name or '[no name]', 1, 122, 0)
     printr(kch(key)..' '..tostr(pos.c)..':'..tostr(pos.l), 0, 122, 0)
    end
   else
@@ -336,6 +338,12 @@ function _update()
   k=997 -- special code for up arrow
  elseif btnp(3) then
   k=998 -- special code for down arrow
+ end
+
+ local has_dropped=file_dropped
+ file_dropped=stat(const.has_file)
+ if not has_dropped and file_dropped then
+  info('type :e then enter to read it')
  end
 
  if k ~= nil then

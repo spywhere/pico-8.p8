@@ -41,3 +41,15 @@ function set_line_at(buffer_id, line_number, content)
   add(buffer.lines, content, line_number)
  end
 end
+
+function set_lines(buffer_id, lines, name)
+ local buffer=buffers[_bufid(buffer_id)]
+ if lines == nil then
+  buffer.lines = {''}
+ else
+  buffer.lines = lines
+ end
+ if name then
+  buffer.name = name .. const.file_suffix
+ end
+end

@@ -6,6 +6,7 @@ __lua__
 #include pim/buffer.lua
 #include pim/cmd.lua
 #include pim/debug.lua
+#include pim/fs.lua
 #include pim/highlight.lua
 #include pim/input.lua
 #include pim/fn/cmd.lua
