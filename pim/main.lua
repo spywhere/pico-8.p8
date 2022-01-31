@@ -215,10 +215,10 @@ function _draw()
   local lineno=pos.y + idx
 
   -- sign
-  local sign={text='~', type='eob'}
+  local sign={text='', type='eob'}
   if lineno <= max_lines then
-   sign.type='linenumber'
    if opts.nu or opts.rnu then
+    sign.type='linenumber'
     local lno=lineno
     if not opts.nu or (opts.rnu and pos.l ~= lineno) then
      lno=abs(pos.l - lineno)
@@ -250,6 +250,8 @@ function _draw()
     end
    end
    print(sub(line_at(0, lineno), 1, 32 - sign_size / 4), lx, 1 + ly, 7)
+  else
+   sign.text='~'
   end
 
   print(sign.text, 0, 1 + idx * 6, hl.sign(sign.type))

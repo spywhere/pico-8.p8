@@ -9,6 +9,7 @@ function eval_cmd(input, cmd_seq, cmdset)
  local value=cmdset[name]
 
  if type(value) == 'function' then
+  splash=false
   return value(cmd_seq)
  else
   return eval_cmd(input, cmd_seq, value)
