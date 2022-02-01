@@ -145,7 +145,6 @@ function forward_to(chars_fn, invert)
     local isw=match(chars, ch, invert)
 
     if isw ~= isword then
-    elseif not to_end and isw ~= isword then
      if isword and match(const.blank_chars, ch) then
       isword = false
      else
