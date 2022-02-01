@@ -1,6 +1,6 @@
--- pim v0.2.0
+-- pim v0.3.0
 -- by spywhere
-version='0.2.0'
+version='0.3.0'
 const={
  devkit=0x5f2d,
  pause_menu=0x5f30,
@@ -146,6 +146,39 @@ function lpad_match(str, target, c)
  end
 end
 
+function get_key_count(table, under_n)
+ local count = 0
+ for k in pairs(table) do
+  if type(k) == 'string' then
+   count += 1
+  end
+
+  if under_n and count > under_n then
+   return count
+  end
+ end
+
+ return count
+end
+
+function get_fn_or_table(value)
+ local value_type=type(value)
+ if value_type == 'function' then
+  return value
+ elseif value_type == 'table' then
+  local key_count = get_key_count(value, 1)
+  if key_count == 0 then
+   return nil
+  elseif key_count == 1 and value[''] then
+   return value['']
+  else
+   return value
+  end
+ else
+  return nil
+ end
+end
+
 function eval_key_seq()
  local k=kch(key)
  local m=sub(mod, 1, 1)
@@ -171,15 +204,17 @@ function eval_key_seq()
   }
  end
 
- local kmap_type=type(cur_map.k)
- local mmap_type=type(cur_map.m)
+ local kmap = get_fn_or_table(cur_map.k)
+ local mmap = get_fn_or_table(cur_map.m)
+ local kmap_type=type(kmap)
+ local mmap_type=type(mmap)
  if kmap_type == 'function' then
   -- map to keymap function
-  cur_map = cur_map.k(key_count) or nil
+  cur_map = kmap(key_count) or nil
   return cur_map and true or false
  elseif mmap_type == 'function' then
   -- map to motion function
-  local range = cur_map.m({ modifier='', count=key_count }) or nil
+  local range = mmap({ modifier='', count=key_count }) or nil
   if range then
    if pos.l ~= range.to.l then
     move_cursor('l', range.to.l, true)(0)
