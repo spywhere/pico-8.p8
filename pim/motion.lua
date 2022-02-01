@@ -21,6 +21,8 @@ function _motion()
   },
   G=to_line(0, true),
   ['0']=to_char(1, true),
-  ['$']=to_char(0, true)
+  ['$']=to_char(0, true),
+  w=forward_to(function () return opts.isk end),
+  W=forward_to(function () return const.blank_chars end, true)
  }
 end

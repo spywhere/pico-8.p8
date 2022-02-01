@@ -5,7 +5,7 @@ function draw_debug()
 
  printr('#lines='..lines(0), 0, 0, 7)
  local idx=6
- for k in all(split(opts.debug, ',')) do
+ for k in all(split(opts.debug, ',', false)) do
   if opts[k] ~= nil then
    printr(k..'='..tostr(opts[k]), 0, idx, 7)
    idx+=6

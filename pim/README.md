@@ -59,6 +59,10 @@ For some of the normal mode operator, you can prefixed it with a count. For exam
 - `gg`/`G`: The top / bottom of the buffer
 - `C-b`/`C-f`: The buffer up / down by a page
 - `C-u`/`C-d`: The buffer up / down by half a page
+- `w`/`W`: The beginning of the next word / WORD
+
+`word`: A word consists of a sequence of letters, digits and underscores, or a sequence of other non-blank characters, separated with white space (spaces, tabs, EOL).  This can be changed with the 'iskeyword' option. An empty line is also considered to be a word.
+`WORD`: A WORD consists of a sequence of non-blank characters, separated with white space. An empty line is also considered to be a WORD.
 
 ## Options
 

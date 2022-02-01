@@ -43,7 +43,7 @@ function _input()
       text=sub(text, 1, #text-1)
      end
 
-     local cmd_seq=split(text, ' ')
+     local cmd_seq=split(text, ' ', false)
      eval_cmd(cur_input.text, cmd_seq, cmds)
     end
     mode('n', false)(0)

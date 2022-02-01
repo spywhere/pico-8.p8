@@ -15,7 +15,8 @@ const={
  has_file=120,
  size=128,
  chwidth=32,
- file_suffix='.p8l'
+ file_suffix='.p8l',
+ blank_chars='\t '
 }
 mod='n'
 modes={}

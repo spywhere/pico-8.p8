@@ -5,13 +5,15 @@ function _option()
   rnu=false,
   so=0,
   tm=1000,
-  mouse=''
+  mouse='',
+  isk=charset { { 65, 90 }, { 97, 122 }, { 48, 57 }, '_' }
  }
  opts_alias={
   number='nu',
   relativenumber='rnu',
   scrolloff='so',
-  timeoutlen='tm'
+  timeoutlen='tm',
+  iskeyword='isk'
  }
 
  modes={
@@ -32,7 +34,7 @@ function set(option)
   return
  end
 
- local components=split(option[1], '=')
+ local components=split(option[1], '=', false)
  local name=components[1]
 
  if sub(name, #name, #name) == '?' then

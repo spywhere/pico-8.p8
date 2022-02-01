@@ -61,7 +61,6 @@ function to_char(offset, absolute)
   end
 
   return {
-   from={l=pos.l,c=pos.c},
    to={l=pos.l,c=last_char},
    line=true
   }
@@ -84,9 +83,103 @@ function to_line(offset, absolute)
   end
 
   return {
-   from={l=pos.l,c=pos.c},
    to={l=last_line,c=last_char},
    line=true
   }
  end
+end
+
+function charset(list)
+ local function build_charset(from, to)
+  local set=''
+  for idx=from, to do
+   set=set..chr(idx)
+  end
+  return set
+ end
+
+ local set=''
+ for item in all(list) do
+  if type(item) == 'string' then
+   set=set..item
+  elseif type(item) == 'table' then
+   set=set..build_charset(unpack(item))
+  end
+ end
+ return set
+end
+
+function match(chars, char, invert)
+ if #char ~= 1 then
+  return invert or false
+ end
+ if #chars < 2 then
+  local result = chars == char
+  return invert and not result or result
+ end
+
+ for idx=1,#chars do
+  if char == sub(chars, idx, idx) then
+   return not invert and true
+  end
+ end
+
+ return invert or false
+end
+
+function forward_to(chars_fn, invert)
+ return function (opts)
+  local chars = chars_fn()
+  local count = max(1, opts.count)
+  local lpos = pos.l
+  local cpos = pos.c
+  local last_line = lines(0)
+
+  local function forward_to_line(pos, line)
+   local line_length = max(1, #line)
+   local target=nil
+   local isword=match(chars, sub(line, pos, pos), invert)
+
+   for idx=pos+1,line_length do
+    local ch=sub(line, idx, idx)
+    local isw=match(chars, ch, invert)
+
+    if isw ~= isword then
+    elseif not to_end and isw ~= isword then
+     if isword and match(const.blank_chars, ch) then
+      isword = false
+     else
+      target = idx
+      break
+     end
+    end
+   end
+
+   return target and target <= #line and target or nil
+  end
+
+  for c=1,count do
+   for idx=1,2 do
+    local line=line_at(0, lpos)
+    local target_pos = forward_to_line(cpos, line)
+
+    if target_pos then
+     cpos = target_pos
+     break
+    elseif lpos == last_line or lpos == pos.l + 1 then
+     break
+    else
+     cpos = 1
+     lpos += 1
+    end
+   end
+  end
+
+  return {
+   to={l=lpos,c=cpos}
+  }
+ end
+end
+
+function backward_to(chars)
 end
