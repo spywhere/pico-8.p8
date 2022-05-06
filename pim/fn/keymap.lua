@@ -120,6 +120,52 @@ function move_cursor(k, offset, absolute)
 end
 
 function incdec(direction)
+ local function next_char(num, direction)
+  -- 32 - 126
+  local jmp = {
+   [32] = { -- SPC
+    [-1] = 90,
+    [1] = 97
+   },
+   [48] = { -- 0
+    [-1] = 122
+   },
+   [64] = { -- @
+    [1] = 91
+   },
+   [65] = { -- A
+    [-1] = 126
+   },
+   [90] = { -- Z
+    [1] = 32
+   },
+   [91] = { -- [
+    [-1] = 64
+   },
+   [96] = { -- `
+    [1] = 123
+   },
+   [97] = { -- a
+    [-1] = 32
+   },
+   [122] = { -- Z
+    [1] = 48
+   },
+   [123] = {
+    [-1] = 96
+   },
+   [126] = { -- ~
+    [1] = 65
+   }
+  }
+
+  if jmp[num] and jmp[num][direction] then
+   return chr(jmp[num][direction])
+  else
+   return chr(num + direction)
+  end
+ end
+
  return function (count)
   local source=cur_input.text or cur_input.input()
   local insertion=cur_input.insertion or #source
@@ -127,11 +173,11 @@ function incdec(direction)
 
   local char = sub(source, insertion + 1, insertion + 1)
   if char == '' and direction > 0 then
-   char = 'a'
-  elseif (char == '' or char == 'a') and direction < 0 then
+   char = ' '
+  elseif (char == '' or char == ' ') and direction < 0 then
    char = ''
   else
-   char = chr(ord(char) + direction)
+   char = next_char(ord(char), direction)
   end
 
   source = sub(source, 1, insertion) .. char .. sub(source, insertion + 2)
