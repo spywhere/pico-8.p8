@@ -3,7 +3,7 @@ function _keymap()
   if opts.input == 'keypad' then
    return {
     i={
-     ['<bsp>']=mode('n', true),
+     ['<tab>']=mode('n', true),
      ['<left>']=move_cursor('c', -1),
      ['<right>']=move_cursor('c', 1),
      ['<up>']=incdec(1),

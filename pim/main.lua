@@ -184,8 +184,8 @@ function eval_key_seq()
  local m=sub(mod, 1, 1)
 
  if cur_map == nil then
-  local reserve_backspace = mod == 'i' and opts.input ~= 'devkit'
-  if input[m] and not handle_input(k, reserve_backspace) then
+  local is_devkit = opts.input == 'devkit'
+  if input[m] and not handle_input(k, is_devkit) then
    return false
   elseif handle_count() then
    return true

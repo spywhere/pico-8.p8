@@ -60,7 +60,7 @@ function is_printable(num)
   (num >=128 and num <= 153)
 end
 
-function handle_input(k, reserve_backspace)
+function handle_input(k, is_devkit)
  if not is_printable(key) then
   return true
  end
@@ -74,10 +74,6 @@ function handle_input(k, reserve_backspace)
  local ins=''
  -- backspace
  if k == '<bsp>' then
-  if reserve_backspace then
-   return true
-  end
-
   local insertion=cur_input.insertion or #source
   if source == '' or insertion <= 0 then
    if source == '' or cur_input.back_on_first then
@@ -91,6 +87,10 @@ function handle_input(k, reserve_backspace)
   cur_input.insertion=insertion - 1
   source=front .. back
  elseif k == '<enter>' or k == '<tab>' then
+  if k == '<tab>' and not is_devkit then
+   return true
+  end
+
   cur_input.accept()
   return false
  elseif k == '<spc>' then
