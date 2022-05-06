@@ -1,7 +1,9 @@
 function _option()
  opts={
+  -- pim-related options
   debug='',
   input='',
+  -- vim-related options
   nu=false,
   rnu=false,
   so=0,

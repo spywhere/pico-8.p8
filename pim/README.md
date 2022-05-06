@@ -25,6 +25,12 @@ To write a file, simply using `:w [filename]` to write a file. This will always 
 
 ## Keymap
 
+Currently, pim supports 2 input types, devkit and a regular keypad / controller.
+
+To switch between input types, use the Pause menu by either physically pause Pico-8 or use `:q`.
+
+### DevKit Input
+
 As there is a limitation on Pico-8 key interception, here are alternative keys for vim functionality.
 
 `C-c` (Control-C) as an escape key
@@ -33,24 +39,69 @@ As there is a limitation on Pico-8 key interception, here are alternative keys f
 For some of the normal mode operator, you can prefixed it with a count. For example, to move down 5 lines, you can use `5j`.
 
 ### Normal Mode
+
+#### DevKit
+
 - `C-c`: Clear pending operator
 - `:`: Enter command line mode
 - `v`/`V`/`c-v`: Enter visual / visual line / visual block mode
-- `i`/`a`: Enter insert mode (at / after a cursor position)
+- `i`/`a`: Enter insert mode (at / after cursor position)
 - `I`/`A`: Enter insert mode (at the start / end of a line)
 - `C-e`/`C-y`: Scroll the buffer up / down by one line
 - `o`: Open a new line below a current line
 - `O`: Open a new line above a current line
 
+#### Keypad
+
+- 1st `O`: Enter command line mode
+- 1st `X`: Enter insert mode at cursor position
+- 2nd `O`: Enter visual mode
+- 2nd `X`: Enter insert mode after cursor position
+
 ### Insert Mode
+
+#### DevKit
+
 - `C-c`: Exit to normal mode
 - `Left`/`Down`/`Up`/`Right`: Move the cursor to the left/down/up/right
 
+#### Keypad
+
+- 1st `O`: Backspace
+- 1st `X`: Line feed
+- 2nd `O`: Exit to normal mode
+- `Left`/`Right`: Move the cursor to the left/right
+- `Up`/`Down`: Iterate a character at cursor position up/down
+
+**Heads up!** Currently, there is no way to delete a line when using keypad input.
+
 ### Visual Mode
+
+#### DevKit
+
 - `C-c`: Clear pending operator
 - `:`: Enter command line mode
 - `v`/`V`/`c-v`: Enter visual / visual line / visual block mode or exit to normal mode if mode is matched
 - `o`/`O`: Swap cursor and cursor's anchor point
+
+#### Keypad
+
+- 1st `O`: Exit to normal mode
+- 2nd `X`: Enter command line mode
+
+### Command-line Mode
+
+#### DevKit
+
+- `C-c`: Exit to normal mode
+- `Left`/`Down`: Move the cursor to the left/down
+
+#### Keypad
+
+- 1st `O`: Exit to normal mode
+- 1st `X`: Accept a command line
+- `Left`/`Right`: Move the cursor to the left/right
+- `Up`/`Down`: Iterate a character at cursor position up/down
 
 ### Motions
 - `g_`: The end of the line including a new line
@@ -72,6 +123,7 @@ You can set the option through command line mode by using `set` command.
 - `relativenumber` / `rnu`: Show relative line number
 - `scrolloff` / `so`: Set a scroll-off buffer limit
 - `timeoutlen` / `tm`: Set a timeout duration to reset the key sequence
+- `iskeyword` / `isk`: Set a set of characters to be considered as a part of `word`
 
 You can also prefixed the option name with `no` to disable the option.
 
