@@ -52,8 +52,7 @@ hl={}
 function _init()
  _option()
 
- -- enable mouse and keyboard
- poke(const.devkit, 1)
+ switch_input()
 
  _buffer()
  splash=is_empty_buffer(0)
@@ -366,35 +365,52 @@ function _update()
  end
 
  local k=nil
- if stat(const.keypress) then
-  k=ord(stat(const.keycode))
 
-  if k == 13 or k == 112 then
-   -- disable pause menu for Return and P key
-   poke(const.pause_menu, 1)
+ if opts.input == 'keypad' then
+  if btnp(0) then
+   k=995 -- special code for left arrow
+  elseif btnp(1) then
+   k=996 -- special code for right arrow
+  elseif btnp(2) then
+   k=997 -- special code for up arrow
+  elseif btnp(3) then
+   k=998 -- special code for down arrow
+  elseif btnp(4) then
+   k=8   -- use <bsp> code for O button
+  elseif btnp(5) then
+   k=13  -- use <enter> code for X button
   end
- elseif btnp(0) then
-  k=995 -- special code for left arrow
- elseif btnp(1) then
-  k=996 -- special code for right arrow
- elseif btnp(2) then
-  k=997 -- special code for up arrow
- elseif btnp(3) then
-  k=998 -- special code for down arrow
- end
+ elseif opts.input == 'devkit' then
+  if stat(const.keypress) then
+   k=ord(stat(const.keycode))
 
- local mx = stat(const.mousex)
- local my = stat(const.mousey)
- local mouse_on = opts.mouse == 'a' or opts.mouse == m
- if mouse_on and (not mouse or mouse.x ~= mx or mouse.y ~= my) then
-  mouse = { x=mx, y=my }
- elseif not mouse_on and mouse then
-  mouse = nil
- end
+   if k == 13 or k == 112 then
+    -- disable pause menu for Return and P key
+    poke(const.pause_menu, 1)
+   end
+  elseif btnp(0) then
+   k=995 -- special code for left arrow
+  elseif btnp(1) then
+   k=996 -- special code for right arrow
+  elseif btnp(2) then
+   k=997 -- special code for up arrow
+  elseif btnp(3) then
+   k=998 -- special code for down arrow
+  end
 
- local mouse_scroll = stat(const.mousescroll)
- if mouse_scroll ~= 0 then
-  scroll('l', mouse_scroll)(0)
+  local mx = stat(const.mousex)
+  local my = stat(const.mousey)
+  local mouse_on = opts.mouse == 'a' or opts.mouse == m
+  if mouse_on and (not mouse or mouse.x ~= mx or mouse.y ~= my) then
+   mouse = { x=mx, y=my }
+  elseif not mouse_on and mouse then
+   mouse = nil
+  end
+
+  local mouse_scroll = stat(const.mousescroll)
+  if mouse_scroll ~= 0 then
+   scroll('l', mouse_scroll)(0)
+  end
  end
 
  local has_dropped=file_dropped

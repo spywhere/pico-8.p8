@@ -128,3 +128,19 @@ function handle_count()
   return true
  end
 end
+
+function switch_input()
+ if opts.input == 'devkit' then
+  opts.input = 'keypad'
+
+  -- disable mouse and keyboard
+  poke(const.devkit, 0)
+ else
+  opts.input = 'devkit'
+
+  -- enable mouse and keyboard
+  poke(const.devkit, 1)
+ end
+
+ menuitem(1, 'input: '..opts.input, switch_input)
+end

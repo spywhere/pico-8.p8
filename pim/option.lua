@@ -1,6 +1,7 @@
 function _option()
  opts={
   debug='',
+  input='',
   nu=false,
   rnu=false,
   so=0,
