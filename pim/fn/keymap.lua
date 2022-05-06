@@ -119,6 +119,31 @@ function move_cursor(k, offset, absolute)
  end
 end
 
+function incdec(direction)
+ return function (count)
+  local source=cur_input.text or cur_input.input()
+  local insertion=cur_input.insertion or #source
+  cur_input.insertion = insertion
+
+  local char = sub(source, insertion + 1, insertion + 1)
+  if char == '' and direction > 0 then
+   char = 'a'
+  elseif (char == '' or char == 'a') and direction < 0 then
+   char = ''
+  else
+   char = chr(ord(char) + direction)
+  end
+
+  source = sub(source, 1, insertion) .. char .. sub(source, insertion + 2)
+
+  if cur_input.input then
+   cur_input.input(source)
+  else
+   cur_input.text = source
+  end
+ end
+end
+
 function scroll(k, offset)
  return function (count)
   local new_value=pos[k] + (count > 0 and (count * offset) or offset)

@@ -1,5 +1,35 @@
 function _keymap()
  keymap = function (opts)
+  if opts.input == 'keypad' then
+   return {
+    i={
+     ['<bsp>']=mode('n', true),
+     ['<left>']=move_cursor('c', -1),
+     ['<right>']=move_cursor('c', 1),
+     ['<up>']=incdec(1),
+     ['<down>']=incdec(-1)
+    },
+    c={
+     ['<left>']=move_cursor('c', -1),
+     ['<right>']=move_cursor('c', 1),
+     ['<up>']=incdec(1),
+     ['<down>']=incdec(-1)
+    },
+    v={
+     -- ['<enter>']=  -- yank
+     ['<lf>']=mode('c'),
+     ['<bsp>']=mode('n', true)
+     -- ['<tab>']=  -- change
+    },
+    n={
+     ['<enter>']=mode('i'),
+     ['<lf>']=mode('i', true),
+     ['<bsp>']=mode('c'),
+     ['<tab>']=mode('v')
+    }
+   }
+  end
+
   return {
    i={
     ['<c-c>']=mode('n', true),

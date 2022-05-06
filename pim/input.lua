@@ -60,7 +60,7 @@ function is_printable(num)
   (num >=128 and num <= 153)
 end
 
-function handle_input(k)
+function handle_input(k, reserve_backspace)
  if not is_printable(key) then
   return true
  end
@@ -74,6 +74,10 @@ function handle_input(k)
  local ins=''
  -- backspace
  if k == '<bsp>' then
+  if reserve_backspace then
+   return true
+  end
+
   local insertion=cur_input.insertion or #source
   if source == '' or insertion <= 0 then
    if source == '' or cur_input.back_on_first then

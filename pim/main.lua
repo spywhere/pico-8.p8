@@ -184,7 +184,8 @@ function eval_key_seq()
  local m=sub(mod, 1, 1)
 
  if cur_map == nil then
-  if input[m] and not handle_input(k) then
+  local reserve_backspace = mod == 'i' and opts.input ~= 'devkit'
+  if input[m] and not handle_input(k, reserve_backspace) then
    return false
   elseif handle_count() then
    return true
@@ -367,18 +368,22 @@ function _update()
  local k=nil
 
  if opts.input == 'keypad' then
-  if btnp(0) then
+  if btnp(0, 0) or btnp(0, 1) then
    k=995 -- special code for left arrow
-  elseif btnp(1) then
+  elseif btnp(1, 0) or btnp(1, 1) then
    k=996 -- special code for right arrow
-  elseif btnp(2) then
+  elseif btnp(2, 0) or btnp(2, 1) then
    k=997 -- special code for up arrow
-  elseif btnp(3) then
+  elseif btnp(3, 0) or btnp(3, 1) then
    k=998 -- special code for down arrow
-  elseif btnp(4) then
-   k=8   -- use <bsp> code for O button
-  elseif btnp(5) then
-   k=13  -- use <enter> code for X button
+  elseif btnp(4, 0) then
+   k=8   -- use <bsp> code for 1st player O button
+  elseif btnp(5, 0) then
+   k=13  -- use <enter> code for 1st player X button
+  elseif btnp(4, 1) then
+   k=9   -- use <tab> code for 2nd player O button
+  elseif btnp(5, 1) then
+   k=10  -- use <lf> code for 2nd player X button
   end
  elseif opts.input == 'devkit' then
   if stat(const.keypress) then
