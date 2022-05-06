@@ -95,6 +95,7 @@ For some of the normal mode operator, you can prefixed it with a count. For exam
 
 - `C-c`: Exit to normal mode
 - `Left`/`Down`: Move the cursor to the left/down
+- `Up`/`Down`: Iterate backward/forward through a command-line history
 
 #### Keypad
 
@@ -124,6 +125,7 @@ You can set the option through command line mode by using `set` command.
 - `scrolloff` / `so`: Set a scroll-off buffer limit
 - `timeoutlen` / `tm`: Set a timeout duration to reset the key sequence
 - `iskeyword` / `isk`: Set a set of characters to be considered as a part of `word`
+- `history` / `hi`: Set a command-line history limit
 
 You can also prefixed the option name with `no` to disable the option.
 

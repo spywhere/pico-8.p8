@@ -165,6 +165,32 @@ function scroll(k, offset)
  end
 end
 
+function history(direction)
+ return function ()
+  local source=cur_input.text or cur_input.input()
+
+  if history_idx ~= 0 and source ~= cmd_history[history_idx] then
+   return
+  end
+
+  source = cmd_history[history_idx + direction]
+  if history_idx + direction == 0 then
+   source = ''
+  elseif not source then
+   return
+  end
+
+  if cur_input.input then
+   cur_input.input(source)
+  else
+   cur_input.text = source
+  end
+  cur_input.insertion = #source
+
+  history_idx += direction
+ end
+end
+
 function print_range(range)
  info(
   (range.line and 'line ' or '')..

@@ -9,14 +9,16 @@ function _option()
   so=0,
   tm=1000,
   mouse='',
-  isk=charset { { 65, 90 }, { 97, 122 }, { 48, 57 }, '_' }
+  isk=charset { { 65, 90 }, { 97, 122 }, { 48, 57 }, '_' },
+  hi=50
  }
  opts_alias={
   number='nu',
   relativenumber='rnu',
   scrolloff='so',
   timeoutlen='tm',
-  iskeyword='isk'
+  iskeyword='isk',
+  history='hi'
  }
 
  modes={

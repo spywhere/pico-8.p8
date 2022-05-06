@@ -41,7 +41,9 @@ function _keymap()
    c={
     ['<c-c>']=mode('n'),
     ['<left>']=move_cursor('c', -1),
-    ['<right>']=move_cursor('c', 1)
+    ['<right>']=move_cursor('c', 1),
+    ['<up>']=history(1),
+    ['<down>']=history(-1)
    },
    v={
     ['<c-c>']=mode('n'),

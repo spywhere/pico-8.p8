@@ -21,6 +21,8 @@ const={
 mod='n'
 modes={}
 buffers={}
+cmd_history={}
+history_idx=0
 opts={}
 opts_alias={}
 max_disp_line={
@@ -242,8 +244,9 @@ function _draw()
   print('pim v'..version, 48, 36, 7)
   print('pim is vim-like editor', 24, 48, 7)
   print('for pico-8', 48, 54, 7)
-  print('type i  to start editing', 20, 66, 7)
-  print('type :q to pause and exit', 20, 72, 7)
+  print('type i   to start editing', 16, 66, 7)
+  print('type :q  to pause and exit', 16, 72, 7)
+  print('pause to change input mode', 16, 84, 7)
  end
 
  local max_lines = max_pos('y')

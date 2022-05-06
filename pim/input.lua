@@ -45,6 +45,22 @@ function _input()
 
      local cmd_seq=split(text, ' ', false)
      eval_cmd(cur_input.text, cmd_seq, cmds)
+
+     if opts.hi ~= 0 then
+      if cur_input.text == cmd_history[history_idx] then
+       deli(cmd_history, history_idx)
+      end
+      if text ~= '' then
+       add(cmd_history, cur_input.text, 1)
+      end
+
+      local total_history=count(cmd_history)
+      while total_history > opts.hi do
+       deli(cmd_history, total_history)
+       total_history -= 1
+      end
+      history_idx = 0
+     end
     end
     mode('n', false)(0)
    end
