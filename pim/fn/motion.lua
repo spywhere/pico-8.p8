@@ -45,7 +45,7 @@ function motion_cmd(fn, operator)
   end
 
   return {
-   m=build_motion_map({ modifier='', count=count }, 1, motion)
+   m=build_motion_map({ modifier='', count=count }, 1, motion(opts))
   }
  end
 end

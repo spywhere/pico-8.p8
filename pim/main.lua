@@ -1,6 +1,6 @@
--- pim v0.3.0
+-- pim v0.3.1
 -- by spywhere
-version='0.3.0'
+version='0.3.1'
 const={
  devkit=0x5f2d,
  pause_menu=0x5f30,
