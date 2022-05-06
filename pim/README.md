@@ -94,7 +94,7 @@ For some of the normal mode operator, you can prefixed it with a count. For exam
 #### DevKit
 
 - `C-c`: Exit to normal mode
-- `Left`/`Down`: Move the cursor to the left/down
+- `Left`/`Right`: Move the cursor to the left/right
 - `Up`/`Down`: Iterate backward/forward through a command-line history
 
 #### Keypad
