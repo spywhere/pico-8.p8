@@ -45,8 +45,8 @@ splash=false
 file_dropped=false
 cmds={}
 input={}
-motion={}
-keymap={}
+motion=function () return {} end
+keymap=function () return {} end
 hl={}
 
 function _init()
@@ -195,8 +195,8 @@ function eval_key_seq()
  local map_type=type(cur_map)
  if cur_map == nil then
   cur_map={
-   k=keymap[m][k],
-   m=motion[k]
+   k=keymap(opts)[m][k],
+   m=motion(opts)[k]
   }
  else
   cur_map={
